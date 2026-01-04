@@ -1,0 +1,156 @@
+.servers {
+    width: 420px;
+    height: 100%;
+    user-select: none;
+    outline: none;
+}
+
+.serversHeader {
+    width: 100%;
+    height: 90px;
+    border-bottom: 1px rgba(255, 255, 255, 0.5) solid;
+    align-content: center;
+    box-sizing: border-box;
+    padding: 0 40px;
+}
+
+.serversList {
+    box-sizing: border-box;
+    padding: 15px;
+    margin-left: 5px;
+    overflow-y: scroll;
+    max-height: calc(100% - 90px);
+    scrollbar-width: none;
+    cursor: pointer;
+    outline: none;
+}
+
+.serverWrapper {
+    padding-bottom: 10px;
+}
+
+.server {
+    box-sizing: border-box;
+    padding: 7px 10px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    height: 60px;
+}
+
+.server:hover {
+    background: linear-gradient(90deg,rgba(48, 48, 48, 0.5) 0%, rgba(0, 0, 0, 0) 90%);
+}
+
+.serverSelected {
+    background: linear-gradient(90deg,rgb(48, 48, 48) 0%, rgba(0, 0, 0, 0) 90%);
+}
+
+.serverIcon {
+    width: 32px;
+    height: 32px;
+}
+
+.circle {
+    border-radius: 100%;
+    width: 10px;
+    height: 10px;
+    margin-top: 2px;
+}
+
+.serverInfo {
+    margin-left: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-content: space-between;
+}
+
+.serverPromotion {
+    align-self: center;
+    margin-right: 10px;
+    width: 25px;
+    height: 25px;
+    background: radial-gradient(circle, rgba(0, 162, 255, 1) 0%, rgba(0, 162, 255, 0) 100%);
+    border: #00A2FF 2px solid;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.serverName {
+    font-weight: bold;
+    font-size: 20px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin: 0;
+    line-height: 20px;
+}
+
+.serverOnline {
+    margin-left: 5px;
+    font-weight: 400;
+    font-size: 10px;
+}
+
+.serverOnlineInfo {
+    display: flex;
+}
+
+.serverNumberDiv {
+    display: flex;
+    width: min-content;
+    align-self: center;
+    position: relative;
+    text-align: end;
+    align-items: center;
+}
+
+.serverNumber {
+    font-family: "Roboto" sans-serif;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.5);
+    box-sizing: border-box;
+}
+
+.searchMain {
+    background-color: #171717;
+    border: 1px rgba(255, 255, 255, 0.5) solid;
+    width: 100%;
+    height: 50%;
+    border-radius: 10px;
+    justify-self: center;
+    display: flex;
+    align-content: center;
+    box-sizing: border-box;
+    padding-left: 10px;
+}
+
+.searchIcon {
+    width: 16px;
+    height: 16px;
+    align-self: center;
+}
+
+.searchInput {
+    width: 100%;
+    background: none;
+    color: white;
+    border: none;
+    outline: none;
+    box-sizing: border-box;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-family: "Roboto";
+    font-style: normal;
+    font-size: 15px;
+}
+
+p {
+    margin: 0;
+}

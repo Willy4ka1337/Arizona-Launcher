@@ -1,0 +1,194 @@
+export namespace main {
+	
+	export class ColorResult {
+	    r: number;
+	    g: number;
+	    b: number;
+	    error?: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ColorResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.r = source["r"];
+	        this.g = source["g"];
+	        this.b = source["b"];
+	        this.error = source["error"];
+	    }
+	}
+	export class FileInfo {
+	    Path: string;
+	    Size: number;
+	    Modified: number;
+	    Type: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new FileInfo(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Path = source["Path"];
+	        this.Size = source["Size"];
+	        this.Modified = source["Modified"];
+	        this.Type = source["Type"];
+	    }
+	}
+	export class ComparisonResult {
+	    MissingFiles: FileInfo[];
+	    ModifiedFiles: FileInfo[];
+	    CorrectFiles: FileInfo[];
+	    DownloadFiles: FileInfo[];
+	    TotalJSONFiles: number;
+	    TotalLocalFiles: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new ComparisonResult(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.MissingFiles = this.convertValues(source["MissingFiles"], FileInfo);
+	        this.ModifiedFiles = this.convertValues(source["ModifiedFiles"], FileInfo);
+	        this.CorrectFiles = this.convertValues(source["CorrectFiles"], FileInfo);
+	        this.DownloadFiles = this.convertValues(source["DownloadFiles"], FileInfo);
+	        this.TotalJSONFiles = source["TotalJSONFiles"];
+	        this.TotalLocalFiles = source["TotalLocalFiles"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class Params {
+	    wideScreen: boolean;
+	    autoLogin: boolean;
+	    preload: boolean;
+	    windowed: boolean;
+	    seasons: boolean;
+	    graphics: boolean;
+	    shitPc: boolean;
+	    cefDirtyRects: boolean;
+	    authCef: boolean;
+	    grass: boolean;
+	    oldResolution: boolean;
+	    hdrResolution: boolean;
+	    modern_scale: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new Params(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.wideScreen = source["wideScreen"];
+	        this.autoLogin = source["autoLogin"];
+	        this.preload = source["preload"];
+	        this.windowed = source["windowed"];
+	        this.seasons = source["seasons"];
+	        this.graphics = source["graphics"];
+	        this.shitPc = source["shitPc"];
+	        this.cefDirtyRects = source["cefDirtyRects"];
+	        this.authCef = source["authCef"];
+	        this.grass = source["grass"];
+	        this.oldResolution = source["oldResolution"];
+	        this.hdrResolution = source["hdrResolution"];
+	        this.modern_scale = source["modern_scale"];
+	    }
+	}
+	export class Config {
+	    name: string;
+	    path: string;
+	    memory: number;
+	    selectedServer: number;
+	    params: Params;
+	    favorites: number[];
+	    closeOnStartup: boolean;
+	
+	    static createFrom(source: any = {}) {
+	        return new Config(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.path = source["path"];
+	        this.memory = source["memory"];
+	        this.selectedServer = source["selectedServer"];
+	        this.params = this.convertValues(source["params"], Params);
+	        this.favorites = source["favorites"];
+	        this.closeOnStartup = source["closeOnStartup"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
+	export class DownloadProgress {
+	    fileDownloading: string;
+	    filesLoaded: string[];
+	    percentDownloaded: number;
+	    speed: number;
+	    totalFiles: number;
+	    downloadedFiles: number;
+	    totalSize: number;
+	    downloadedSize: number;
+	    currentFile: string;
+	    currentFilePercent: number;
+	    currentFileSize: number;
+	    currentFileLoaded: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new DownloadProgress(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.fileDownloading = source["fileDownloading"];
+	        this.filesLoaded = source["filesLoaded"];
+	        this.percentDownloaded = source["percentDownloaded"];
+	        this.speed = source["speed"];
+	        this.totalFiles = source["totalFiles"];
+	        this.downloadedFiles = source["downloadedFiles"];
+	        this.totalSize = source["totalSize"];
+	        this.downloadedSize = source["downloadedSize"];
+	        this.currentFile = source["currentFile"];
+	        this.currentFilePercent = source["currentFilePercent"];
+	        this.currentFileSize = source["currentFileSize"];
+	        this.currentFileLoaded = source["currentFileLoaded"];
+	    }
+	}
+	
+
+}
+
