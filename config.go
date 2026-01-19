@@ -7,29 +7,37 @@ import (
 )
 
 type Params struct {
-	WideScreen    bool `json:"wideScreen"`
-	AutoLogin     bool `json:"autoLogin"`
-	Preload       bool `json:"preload"`
-	Windowed      bool `json:"windowed"`
-	Seasons       bool `json:"seasons"`
-	Graphics      bool `json:"graphics"`
-	ShitPc        bool `json:"shitPc"`
-	CefDirtyRects bool `json:"cefDirtyRects"`
-	AuthCef       bool `json:"authCef"`
-	Grass         bool `json:"grass"`
-	OldResolution bool `json:"oldResolution"`
-	HdrResolution bool `json:"hdrResolution"`
-	ModernScale  bool `json:"modern_scale"`
+	WideScreen    	bool `json:"wideScreen"`
+	AutoLogin     	bool `json:"autoLogin"`
+	Preload       	bool `json:"preload"`
+	Windowed      	bool `json:"windowed"`
+	Seasons       	bool `json:"seasons"`
+	Graphics      	bool `json:"graphics"`
+	ShitPc        	bool `json:"shitPc"`
+	CefDirtyRects 	bool `json:"cefDirtyRects"`
+	AuthCef       	bool `json:"authCef"`
+	Grass         	bool `json:"grass"`
+	OldResolution 	bool `json:"oldResolution"`
+	HdrResolution 	bool `json:"hdrResolution"`
+	ModernScale  	bool `json:"modern_scale"`
+}
+
+type StartCfg struct {
+	Id 		 		int    `json:"id"`
+	Name           	string `json:"name"`
+	Path           	string `json:"path"`
 }
 
 type Config struct {
-	Name           string `json:"name"`
-	Path           string `json:"path"`
-	Memory         int    `json:"memory"`
-	SelectedServer int    `json:"selectedServer"`
-	Params         Params `json:"params"`
-	Favorites      []int  `json:"favorites"`
-	CloseOnStartup bool   `json:"closeOnStartup"`
+	Name           	string `json:"name"`
+	Path           	string `json:"path"`
+	Memory         	int    `json:"memory"`
+	SelectedServer 	int    `json:"selectedServer"`
+	Params         	Params `json:"params"`
+	CloseOnStartup 	bool   `json:"closeOnStartup"`
+	SavedNames		[]string `json:"savedNames"`
+	SavedPaths		[]string `json:"savedPaths"`
+	SavedStartCfgs	[]StartCfg `json:"savedStartCfgs"`
 }
 
 var cfg *Config
@@ -50,12 +58,23 @@ func LoadConfig() error {
 				AutoLogin: true,
 				Windowed: true,
 			},
-			Favorites: []int{},
+			SavedNames: []string{},
+			SavedPaths: []string{},
+			SavedStartCfgs: []StartCfg{},
 		}
 		return SaveConfig()
 	}
 
 	err = json.Unmarshal(data, &cfg)
+	if cfg.SavedNames == nil {
+		cfg.SavedNames = []string{}
+	}
+	if cfg.SavedPaths == nil {
+		cfg.SavedPaths = []string{}
+	}
+	if cfg.SavedStartCfgs == nil {
+		cfg.SavedStartCfgs = []StartCfg{}
+	}
 	return err
 }
 

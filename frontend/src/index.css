@@ -4,20 +4,12 @@
 :root {
     color: white;
     background: #0B0B0B;
-    font-family: 'Roboto';
+    font-family: "Roboto";
 }
 
 body {
-    margin: 0;
-    font-family: 'Roboto';
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    font-family: "Roboto";
     background: #0B0B0B;
     color: #fff;
     overflow: hidden;
-}
-
-code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-        monospace;
 }

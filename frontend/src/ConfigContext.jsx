@@ -5,18 +5,22 @@ export const ConfigContext = createContext()
 
 export function ConfigProvider({ children }) {
     const [config, setConfig] = useState({})
+
     const saveConfig = (cfg) => {
         setConfig(cfg)
         saveCfg(cfg)
     }
-    useEffect(() => {
+    const updateConfig = () => {
         loadConfig().then(cfg => {
             setConfig(cfg)
         })
-    })
+    }
+    useEffect(() => {
+        updateConfig()
+    }, [])
 
     return (
-        <ConfigContext.Provider value={{config, saveConfig}}>
+        <ConfigContext.Provider value={{config, saveConfig, updateConfig}}>
             {children}
         </ConfigContext.Provider>
     )

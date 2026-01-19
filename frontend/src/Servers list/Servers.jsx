@@ -3,7 +3,9 @@ import Search from "./Search"
 import classes from "./style.module.css"
 import Server from "./Server"
 import useInput from "../hooks/useInput"
-export default function Servers({servers, selectedServer, setSelectedServer}) {
+import { useServers } from "../ServersContext"
+export default function Servers() {
+    const {servers, selectedServer, setSelectedServer} = useServers()
     const input = useRef()
     const tinput = useInput()
 
@@ -17,7 +19,7 @@ export default function Servers({servers, selectedServer, setSelectedServer}) {
                     />
                 </div>
                 <div className={classes.serversList}>
-                    {servers?.filter(
+                    {servers?.arizona?.filter(
                             server => server.name.toLowerCase().includes(tinput.value.toLowerCase())
                         ).map((server, i) =>
                         <Server

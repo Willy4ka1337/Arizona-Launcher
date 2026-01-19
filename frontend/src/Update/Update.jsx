@@ -14,7 +14,7 @@ export default function UpdateTab() {
         totalSize: 0,
         downloadedSize: 0,
     })
-    const {isUpdating, setIsUpdating, missingFilesLoaded, modifiedFilesLoaded, updateSize, isUpdateAvailable, setUpdateAvaible, updateTab, setUpdateTab, UpdateInfo} = useUpdate()
+    const {isUpdating, setIsUpdating, missingFilesLoaded, modifiedFilesLoaded, updateSize, setUpdateAvaible, updateTab, setUpdateTab, UpdateInfo} = useUpdate()
     const {config} = useConfig()
     const progress = useRef()
 
@@ -64,7 +64,6 @@ export default function UpdateTab() {
     useEffect(() => {
         if (!window.runtime) return
         window.runtime.EventsOn('download-progress', (data) => {
-            console.log(data);
             setDownloadData(data)
         })
         window.runtime.EventsOn('download-started', () => {
@@ -72,7 +71,6 @@ export default function UpdateTab() {
         })
         window.runtime.EventsOn('download-error', (path, error) => {
             // setIsUpdating(false)
-            console.log(error);
         })
         window.runtime.EventsOn('downloads-stopping', () => {
             // setIsUpdating(false)
@@ -83,9 +81,10 @@ export default function UpdateTab() {
         window.runtime.EventsOn("all-downloads-complete", () => {
             setIsUpdating(false)
             setUpdateTab(false)
+            setUpdateAvaible(false)
             UpdateInfo(config.path)
-            isUpdateAvailable(config.path)
-                .then(res => setUpdateAvaible(res))
+            // isUpdateAvailable(config.path)
+            //     .then(res => setUpdateAvaible(res))
         })
         return () => {
             if (window.runtime) {
@@ -132,7 +131,7 @@ export default function UpdateTab() {
                             }
                         </div>
                         {isUpdating ? <>
-                        <div className="mt-5">
+                        <div className="my-5">
                             <p className="text-xl font-bold">Установленно:</p>
                             <div className="mt-2 h-[27vh] overflow-y-scroll [&::-webkit-scrollbar]:hidden">
                                 {downloadData.filesLoaded.map((file, i) => (
@@ -144,7 +143,7 @@ export default function UpdateTab() {
                         <div className="flex gap-10 justify-center">
                             <div className="mt-5 overflow-x-hidden">
                                 <p className="text-xl font-bold">Новые файлы:</p>
-                                <div className="mt-2 h-[37vh] overflow-y-scroll [&::-webkit-scrollbar]:hidden">
+                                <div className="mt-2 h-72 overflow-y-scroll [&::-webkit-scrollbar]:hidden">
                                     {missingFilesLoaded.map((file, i) => (
                                         <p className="text-base font-medium text-white/60" key={i}>{file.Path}</p>
                                     ))}
@@ -160,9 +159,7 @@ export default function UpdateTab() {
                             </div>
                         </div>
                         </>}
-                        <div className="mt-5">
-                            <button className="bg-white text-black w-45 h-13 rounded-2xl text-2xl font-bold hover:relative hover:top-0.5 hover:bg-gray-200 cursor-pointer" onClick={buttonCallback}>{isUpdating ? "Отмена" : "Установить"}</button>
-                        </div>
+                        <button className="bg-white text-black w-45 h-13 rounded-2xl text-2xl font-bold hover:relative hover:top-0.5 hover:bg-gray-200 cursor-pointer" onClick={buttonCallback}>{isUpdating ? "Отмена" : "Установить"}</button>
                     </div>
                 </div>
             </div>

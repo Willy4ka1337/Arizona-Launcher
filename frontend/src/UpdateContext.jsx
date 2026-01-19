@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
-import {IsUpdateAvailable, GetMissingFiles, GetModifiedFiles, GetUpdates} from '../wailsjs/go/main/App'
+import {IsUpdateAvailable, GetUpdates} from '../wailsjs/go/main/App'
+import { useConfig } from './ConfigContext';
 import { loadConfig } from './Config';
 
 export const UpdateContext = createContext()
@@ -37,13 +38,17 @@ export function UpdateProvider({ children }) {
     const [updateSize, setUpdateSize] = useState("")
     const [updateAvaible, setUpdateAvaible] = useState(false)
     const [updateTab, setUpdateTab] = useState(false)
+    const [checkFiles, setCheckFiles] = useState(false)
     
     const UpdateInfo = (path) => {
+        setCheckFiles(true)
         GetUpdates(path)
             .then(res => {
-                setMissingFilesLoaded(res.MissingFiles)
-                setModifiedFilesLoaded(res.ModifiedFiles)
+                setCheckFiles(false)
+                setMissingFilesLoaded(res.MissingFiles.sort((a, b) => a.Path.localeCompare(b.Path)))
+                setModifiedFilesLoaded(res.ModifiedFiles.sort((a, b) => a.Path.localeCompare(b.Path)))
                 setUpdateSize(formatBytes(getUpdateSize(res.DownloadFiles)))
+                setUpdateAvaible(getUpdateSize(res.DownloadFiles) !== 0)
                 if (getUpdateSize(res.DownloadFiles) == 0) {
                     setUpdateTab(false)
                 }
@@ -53,16 +58,14 @@ export function UpdateProvider({ children }) {
     useEffect(() => {
         loadConfig().then(config => {
             UpdateInfo(config.path)
-        })
-        setInterval(() => {
-            loadConfig().then(config => {
+            setInterval(() => {
                 UpdateInfo(config.path)
-            })
-        }, 5000);
+            }, 60000);
+        })
     }, [])
 
     return (
-        <UpdateContext.Provider value={{isUpdating, setIsUpdating, missingFilesLoaded, setMissingFilesLoaded, modifiedFilesLoaded, setModifiedFilesLoaded, updateSize, setUpdateSize, isUpdateAvailable, UpdateInfo, updateAvaible, setUpdateAvaible, updateTab, setUpdateTab}}>
+        <UpdateContext.Provider value={{isUpdating, setIsUpdating, missingFilesLoaded, setMissingFilesLoaded, modifiedFilesLoaded, setModifiedFilesLoaded, updateSize, setUpdateSize, isUpdateAvailable, UpdateInfo, updateAvaible, setUpdateAvaible, updateTab, setUpdateTab, checkFiles}}>
             {children}
         </UpdateContext.Provider>
     )

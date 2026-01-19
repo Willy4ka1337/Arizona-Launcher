@@ -23,6 +23,7 @@ export namespace main {
 	    Size: number;
 	    Modified: number;
 	    Type: string;
+	    Hash: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new FileInfo(source);
@@ -34,6 +35,7 @@ export namespace main {
 	        this.Size = source["Size"];
 	        this.Modified = source["Modified"];
 	        this.Type = source["Type"];
+	        this.Hash = source["Hash"];
 	    }
 	}
 	export class ComparisonResult {
@@ -75,6 +77,22 @@ export namespace main {
 		    }
 		    return a;
 		}
+	}
+	export class StartCfg {
+	    id: number;
+	    name: string;
+	    path: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new StartCfg(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.name = source["name"];
+	        this.path = source["path"];
+	    }
 	}
 	export class Params {
 	    wideScreen: boolean;
@@ -118,8 +136,10 @@ export namespace main {
 	    memory: number;
 	    selectedServer: number;
 	    params: Params;
-	    favorites: number[];
 	    closeOnStartup: boolean;
+	    savedNames: string[];
+	    savedPaths: string[];
+	    savedStartCfgs: StartCfg[];
 	
 	    static createFrom(source: any = {}) {
 	        return new Config(source);
@@ -132,8 +152,10 @@ export namespace main {
 	        this.memory = source["memory"];
 	        this.selectedServer = source["selectedServer"];
 	        this.params = this.convertValues(source["params"], Params);
-	        this.favorites = source["favorites"];
 	        this.closeOnStartup = source["closeOnStartup"];
+	        this.savedNames = source["savedNames"];
+	        this.savedPaths = source["savedPaths"];
+	        this.savedStartCfgs = this.convertValues(source["savedStartCfgs"], StartCfg);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -188,6 +210,7 @@ export namespace main {
 	        this.currentFileLoaded = source["currentFileLoaded"];
 	    }
 	}
+	
 	
 
 }

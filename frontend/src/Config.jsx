@@ -1,4 +1,4 @@
-import { GetConfig, UpdateConfig } from '../wailsjs/go/main/App';
+import { GetConfig, UpdateConfig, GetSavedStartCfgs } from '../wailsjs/go/main/App';
 
 let cfg = {};
 
@@ -23,61 +23,14 @@ export async function saveCfg(newConfig) {
     }
 }
 
-export function getConfig() {
-    return cfg;
-}
-
-export async function updateConfigPartial(updates) {
-    const updatedConfig = {
-        ...cfg,
-        ...updates
-    };
-    return await saveCfg(updatedConfig);
-}
-
-export async function updateParams(paramsUpdates) {
-    const updatedConfig = {
-        ...cfg,
-        params: {
-            ...cfg.params,
-            ...paramsUpdates
-        }
-    };
-    return await saveCfg(updatedConfig);
-}
-
-export async function addToFavorites(serverId) {
-    if (!cfg.favorites.includes(serverId)) {
-        const updatedFavorites = [...cfg.favorites, serverId];
-        return await updateConfigPartial({ favorites: updatedFavorites });
+export async function getSavedStartCfgs() {
+    try {
+        return await GetSavedStartCfgs();
+    } catch (error) {
+        console.error('Failed to get saved start configs:', error);
+        return [];
     }
-    return true;
 }
-
-export async function removeFromFavorites(serverId) {
-    const updatedFavorites = cfg.favorites.filter(id => id !== serverId);
-    return await updateConfigPartial({ favorites: updatedFavorites });
-}
-
-export function isFavorite(serverId) {
-    return cfg.favorites.includes(serverId);
-}
-
-// WideScreen: "wideScreen",
-// AutoLogin: "autoLogin",
-// Preload: "preload",
-// AutoClean: "autoClean",
-// Windowed: "windowed",
-// TestBranch: "testBranch",
-// Seasons: "seasons",
-// Rtree: "rtree",
-// Graphics: "graphics",
-// ShitPc: "shitPc",
-// CefDirtyRects: "cefDirtyRects",
-// CefAuth: "authCef",
-// Grass: "grass",
-// OldResolution: "oldResolution",
-// HdrResolution: "hdrResolution"
 
 const parameterName = {
     "windowed": "window",
@@ -111,12 +64,12 @@ const paramsNames = {
 
 export {paramsNames}
 
-export async function getStartParams(server_ip) {
+export async function getStartParams(server_ip, name) {
     const result = [
         "-c",
         "-h", server_ip,
         "-p", "7777",
-        "-n", cfg.name,
+        "-n", name ?? cfg.name,
         "-mem", `${cfg.memory}`,
         "-arizona",
         "-referrer",

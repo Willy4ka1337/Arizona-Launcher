@@ -1,5 +1,4 @@
 import classes from "./style.module.css"
-import exclamation from "/exclamation.svg"
 import { useEffect, useState } from "react"
 import { paramsNames } from "../Config"
 import { useFolderDialog } from "../hooks/useFolderDialog"
@@ -43,6 +42,7 @@ export default function Settings({setSettingsTab}) {
                 })
         }, 100);
     }
+
     return (
         <>
         <div className={classes.main}>
@@ -78,6 +78,10 @@ export default function Settings({setSettingsTab}) {
                                         saveConfig(config)
                                     }}>{paramsNames[value]}</Toggle>
                                 ))}
+                                <Toggle enabled={config.closeOnStartup} onChange={(e) => {
+                                    config.closeOnStartup = e.target.checked
+                                    saveConfig(config)
+                                }}>Закрывать игру при запуске</Toggle>
                             </div>
                         </div>
                     </div>

@@ -1,42 +1,20 @@
 import Servers from './Servers list/Servers';
 import ServerInfo from './Server Info/Server Info';
 import Settings from './Settings/settings'
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import classes from "./style.module.css"
 import xmark from "/Xmark.svg"
 import minus from "/Minus.svg"
 import settings from "/Settings.svg"
 import Angle from "/AngleDown.svg"
-import { loadConfig } from './Config';
-import { ConfigProvider } from './ConfigContext';
 import UpdateTab from './Update/Update';
+import { ConfigProvider } from './ConfigContext';
 import { UpdateProvider } from './UpdateContext';
+import { ServersProvider } from './ServersContext';
 
 function App() {
     const [settingsTab, setSettingsTab] = useState(false)
-    const [servers, setServers] = useState([])
-    const [selectedServer, setSelectedServer] = useState()
     const [loaded, setLoaded] = useState(false)
-    
-    const updateArizonaInfo = () => {
-        fetch("https://api.arizona-five.com/launcher/servers")
-            .then((res) => res.json())
-                .then((res) => {
-                    res.arizona.sort((a, b) => a.number - b.number)
-                    setServers(res.arizona)
-                    setLoaded(true)
-                })
-    }
-
-    useEffect(() => {
-        loadConfig().then(cfg => {
-            setSelectedServer(cfg.selectedServer)
-        })
-        updateArizonaInfo()
-        setInterval(() => {
-            updateArizonaInfo()
-        }, 5000);
-    }, [])
 
     const handleMinimize = async () => {
         try {
@@ -58,39 +36,35 @@ function App() {
         <>
             <ConfigProvider>
                 <UpdateProvider>
-                    <div className="h-screen">
-                        <div className={classes.windowHeader}>
-                            <div className={classes.windowControls}>
-                                {!settingsTab ? <>
-                                    <img src={settings} alt="" className={`${classes.headerIcon} ${classes.settingsButton}`} onMouseDownCapture={() => {setSettingsTab(!settingsTab)}}/>
-                                </> : <>
-                                    <img src={Angle} alt="" className={`${classes.headerIcon} ${classes.anglebutton}`} onMouseDownCapture={() => {setSettingsTab(!settingsTab)}}/>
-                                </>}
-                                <img src={minus}    alt="" className={classes.headerIcon} onMouseDownCapture={handleMinimize}/>
-                                <img src={xmark}    alt="" className={classes.headerIcon} onMouseDownCapture={handleClose}/>
+                    <ServersProvider setLoaded={setLoaded}>
+                        <div className="h-screen">
+                            <div className="absolute top-0 left-[300px] w-[calc(100%-300px)] py-2.5 pr-4 box-border user-select-none justify-items-end [widows:1]">
+                                <div className="flex">
+                                    {!settingsTab ? (
+                                        <img src={settings} alt="" className="cursor-pointer w-8 h-8 mx-1 transition-transform duration-700 ease-in-out hover:rotate-360" onMouseDownCapture={() => {setSettingsTab(!settingsTab)}}/>
+                                    ) : (
+                                        <img src={Angle} alt="" className="cursor-pointer w-8 h-8 mx-1 rotate-90" onMouseDownCapture={() => {setSettingsTab(!settingsTab)}}/>
+                                    )}
+                                    <img src={minus} alt="" className="cursor-pointer w-8 h-8 mx-1" onMouseDownCapture={handleMinimize}/>
+                                    <img src={xmark} alt="" className="cursor-pointer w-8 h-8 mx-1" onMouseDownCapture={handleClose}/>
+                                </div>
                             </div>
-                        </div>
-                        {loaded ? <>
-                        <div className={classes.main}>
-                            {settingsTab ? <Settings setSettingsTab={setSettingsTab}/> : <>
-                                <Servers
-                                    servers={servers}
-                                    selectedServer = {selectedServer}
-                                    setSelectedServer = {setSelectedServer}
-                                />
-                                <ServerInfo
-                                    servers={servers}
-                                    selectedServer = {selectedServer}
-                                />
-                                <UpdateTab/>
+                            {loaded ? <>
+                            <div className="flex h-screen">
+                                {settingsTab ? <Settings setSettingsTab={setSettingsTab}/> : <>
+                                    <Servers/>
+                                    <ServerInfo/>
+                                    <UpdateTab/>
+                                </>}
+                            </div>
+                            </> : <>
+                            <div className={classes.loaderWrapper}>
+                                <div className={classes.loader}></div>
+                            </div>
                             </>}
+                            <div className='w-full h-full pointer-events-none fixed top-0 left-0 flex justify-end items-end pr-2 pb-2 text-white/20 text-sm'>by Willy4ka</div>
                         </div>
-                        </> : <>
-                        <div className={classes.loaderWrapper}>
-                            <div className={classes.loader}></div>
-                        </div>
-                        </>}
-                    </div>
+                    </ServersProvider>
                 </UpdateProvider>
             </ConfigProvider>
         </>

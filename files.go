@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/md5"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -26,6 +27,7 @@ type FileInfo struct {
 	Size     int64
 	Modified int64
 	Type     string
+	Hash     string
 }
 
 type LocalFile struct {
@@ -34,6 +36,7 @@ type LocalFile struct {
 	Modified int64
 	Exists   bool
 	Type     string
+	Hash     string
 }
 
 type ComparisonResult struct {
@@ -53,20 +56,19 @@ type FilesConfig struct {
 var files *ComparisonResult
 
 func updateFiles(directory string) {
-	config := FilesConfig{
-		TargetDir: directory,
-		GameURL:   "https://pc.az-ins.com/release/game.json",
-	}
-	game := LoadGameFiles(config)
-	allGameFiles := CollectAllFiles(game, "")
-	localFiles := ScanLocalFiles(config.TargetDir)
-	files = CompareFiles(allGameFiles, localFiles)
+	// config := FilesConfig{
+	// 	TargetDir: directory,
+	// 	GameURL:   "https://pc.az-ins.com/release/game.json",
+	// }
+	// game := LoadGameFiles(config)
+	// allGameFiles := CollectAllFiles(game, "")
+	// localFiles := ScanLocalFiles(config.TargetDir)
+	// files = CompareFiles(allGameFiles, localFiles)
+	files = ValidateGameFiles(directory)
 }
 
 func (a *App) DownloadFiles(directory string) {
-	if files == nil {
-		updateFiles(directory)
-	}
+	// updateFiles(directory)
 
 	var fileInfos []struct {
 		Path string
@@ -96,7 +98,6 @@ func (a *App) DownloadFiles(directory string) {
 
 		err := a.downloader.DownloadFile(url, fullPath)
 		if err != nil {
-			//если отмена - прерываем последовательность
 			if strings.Contains(err.Error(), "загрузка отменена") {
 				runtime.EventsEmit(a.ctx, "download-error", f.Path, err.Error())
 				stop = true
@@ -104,11 +105,8 @@ func (a *App) DownloadFiles(directory string) {
 			} else {
 				hasRealErrors = true
 				runtime.EventsEmit(a.ctx, "download-error", f.Path, err.Error())
-				// продолжаем попытки загрузки следующих файлов
 				continue
 			}
-		} else {
-			runtime.EventsEmit(a.ctx, "download-finished", f.Path)
 		}
 	}
 
@@ -140,29 +138,40 @@ func (a *App) GetDownloadProgress() DownloadProgress {
 }
 
 func (a *App) GetUpdates(directory string) *ComparisonResult {
-	if files == nil {
-		updateFiles(directory)
-	}
+	updateFiles(directory)
 	return files
 }
 
 func (a *App) GetMissingFiles(directory string) []FileInfo {
-	if files == nil {
-		updateFiles(directory)
-	}
+	updateFiles(directory)
 	return files.MissingFiles
 }
 
 func (a *App) GetModifiedFiles(directory string) []FileInfo {
-	if files == nil {
-		updateFiles(directory)
-	}
+	updateFiles(directory)
 	return files.ModifiedFiles
 }
 
 func (a *App) IsUpdateAvailable(directory string) bool {
 	updateFiles(directory)
 	return (len(files.DownloadFiles) > 0)
+}
+
+func (a *App) CheckFilesExist(directory string) bool {
+	config := FilesConfig{
+		TargetDir: directory,
+		GameURL:   "https://pc.az-ins.com/release/game.json",
+	}
+	game := LoadGameFiles(config)
+	allGameFiles := CollectAllFiles(game, "")
+
+	for _, file := range allGameFiles {
+		fullPath := filepath.Join(directory, file.Path)
+		if !FileExists(fullPath) {
+			return false
+		}
+	}
+	return true
 }
 
 func CollectAllFiles(entries []FileEntry, basePath string) []FileInfo {
@@ -181,6 +190,7 @@ func CollectAllFiles(entries []FileEntry, basePath string) []FileInfo {
 				Size:     entry.Size,
 				Modified: entry.DateChange,
 				Type:     entry.Type,
+				Hash:     entry.Hash,
 			})
 		}
 	}
@@ -235,11 +245,15 @@ func ScanLocalFiles(rootDir string) map[string]LocalFile {
 		relPath = filepath.ToSlash(relPath)
 		normalizedKey := strings.ToLower(relPath)
 
+		// compute MD5 hash of the local file (best-effort)
+		hashStr, _ := ComputeFileMD5(path)
+
 		localFiles[normalizedKey] = LocalFile{
 			Path:     relPath,
 			Size:     info.Size(),
 			Modified: info.ModTime().Unix(),
 			Exists:   true,
+			Hash:     hashStr,
 		}
 
 		return nil
@@ -250,6 +264,49 @@ func ScanLocalFiles(rootDir string) map[string]LocalFile {
 	}
 
 	return localFiles
+}
+
+// ComputeFileMD5 вычисляет MD5 файла, возвращает hex-строку или ошибку
+func ComputeFileMD5(path string) (string, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return "", err
+	}
+	defer f.Close()
+
+	h := md5.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%x", h.Sum(nil)), nil
+}
+
+func ValidateGameFiles(directory string) *ComparisonResult {
+	config := FilesConfig{
+		TargetDir: directory,
+		GameURL:   "https://pc.az-ins.com/release/game.json",
+	}
+	game := LoadGameFiles(config)
+	allGameFiles := CollectAllFiles(game, "")
+
+	// Сканируем локальные файлы (ScanLocalFiles уже считает хэши best-effort)
+	localFiles := ScanLocalFiles(config.TargetDir)
+
+	// Для локальных файлов без хеша попробуем пересчитать (на случай ошибок доступа ранее)
+	for key, lf := range localFiles {
+		if lf.Hash == "" {
+			fullPath := filepath.Join(config.TargetDir, lf.Path)
+			if hash, err := ComputeFileMD5(fullPath); err == nil {
+				lf.Hash = hash
+				localFiles[key] = lf
+			}
+		}
+	}
+
+	// Сравниваем и формируем результат
+	result := CompareFiles(allGameFiles, localFiles)
+
+	return result
 }
 
 func CompareFiles(jsonFiles []FileInfo, localFiles map[string]LocalFile) *ComparisonResult {
@@ -293,5 +350,14 @@ func CompareFiles(jsonFiles []FileInfo, localFiles map[string]LocalFile) *Compar
 }
 
 func IsFileModified(jsonFile FileInfo, localFile LocalFile) bool {
-	return (jsonFile.Size != localFile.Size)
+	if jsonFile.Size != localFile.Size {
+		return true
+	}
+	if jsonFile.Hash != "" && localFile.Hash != "" {
+		return jsonFile.Hash != localFile.Hash
+	}
+	if jsonFile.Modified != localFile.Modified {
+		return true
+	}
+	return false
 }

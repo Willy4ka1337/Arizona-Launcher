@@ -22,6 +22,7 @@ type Server struct {
 
 type ArizonaInfo struct {
 	Arizona []Server `json:"arizona"`
+	ViceCity []Server `json:"vc"`
 }
 
 const (

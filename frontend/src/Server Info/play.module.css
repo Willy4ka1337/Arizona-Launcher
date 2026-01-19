@@ -32,7 +32,8 @@
     border: none;
     background: #ffffff;
     color: #000;
-    width: 170px;
+    min-width: 170px;
+    padding: 0 35px;
     height: 60px;
     border-radius: 15px;
     font-family: "Roboto" sans-serif;

@@ -121,3 +121,24 @@ func KillGTA() error {
     cmd := exec.Command("taskkill", "/f", "/im", "gta_sa.exe")
     return cmd.Run()
 }
+
+func AddSavedStartCfg(name string, path string) error {
+	id := 0
+    for _, sc := range cfg.SavedStartCfgs {
+		if sc.Id >= id {
+            id = sc.Id + 1
+        }
+	}
+    newCfg := StartCfg{Id: id, Name: name, Path: path}
+	cfg.SavedStartCfgs = append(cfg.SavedStartCfgs, newCfg)
+	return SaveConfig()
+}
+
+func IsSavedStartCfgExists(name string, path string) bool {
+	for _, sc := range cfg.SavedStartCfgs {
+		if sc.Name == name && sc.Path == path {
+			return true
+		}
+	}
+	return false
+}

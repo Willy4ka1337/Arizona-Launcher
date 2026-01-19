@@ -4,27 +4,29 @@ import { getStartParams } from "../Config"
 import { useConfig } from "../ConfigContext"
 import { useUpdate } from "../UpdateContext"
 
-export default function PlayBar({server_ip, server_number}) {
+export const startGame = async (server_ip, server_number, name, path, config, saveConfig, updateConfig) => {
+    if (server_ip.match(/\.arizona\-rp\.com/)) {
+        try {
+            const params = await getStartParams(server_ip, name ?? config.name)
+            config.selectedServer = server_number
+            saveConfig(config)
+            setTimeout(() => {
+                updateConfig()
+            }, 1000);
+            await window.go.main.App.StartGame(`${path ?? config.path}\\gta_sa.exe`, params)
+            window.runtime.EventsEmit('js:getgamestate')
+        } catch (error) {}
+    }
+}
+
+export function PlayBar({server_ip, server_number}) {
     const [gameStarted, setGameStarted] = useState(false)
     const [playLoader, setPlayLoader] = useState(false)
-    const {config, saveConfig} = useConfig()
-    const {isUpdateAvailable, updateAvaible, setUpdateAvaible, updateTab, setUpdateTab, UpdateInfo} = useUpdate()
-
-    const startGame = async () => {
-        if (playLoader) return
-        if (server_ip.match(/\.arizona\-rp\.com/)) {
-            try {
-                setPlayLoader(!playLoader)
-                const params = await getStartParams(server_ip)
-                config.selectedServer = server_number
-                saveConfig(config)
-                
-                await window.go.main.App.StartGame(`${config.path}\\gta_sa.exe`, params)
-                window.runtime.EventsEmit('js:getgamestate')
-            } catch (error) {
-                console.error("error start game", error);
-            }
-        }
+    const {config, saveConfig, updateConfig} = useConfig()
+    const {updateAvaible, updateTab, setUpdateTab, UpdateInfo} = useUpdate()
+    const buttonText = () => {
+        if (gameStarted && config.closeOnStartup) return "Закрыть"
+        else return "Играть"
     }
 
     useEffect(() => {
@@ -41,30 +43,19 @@ export default function PlayBar({server_ip, server_number}) {
         }
     }, [])
 
-    useEffect(() => {
-        isUpdateAvailable(config.path)
-            .then(res => {
-                setUpdateAvaible(res)
-                if (res) {
-                    UpdateInfo(config.path)
-                }
-            })
-        setInterval(() => {
-            isUpdateAvailable(config.path)
-                .then(res => {
-                    setUpdateAvaible(res)
-                    if (res) {
-                        UpdateInfo(config.path)
-                    }
-                })
-        }, 5000);
-    }, [])
-
     return (
         <>
             <div className={classes.mainBar}>
                 <button className={`${classes.updateAvaible} ${updateAvaible ? classes.showUpdate : ""}`} onClick={() => {setUpdateTab(!updateTab)}}>Доступно обновление!</button>
-                <button className={classes.playButton} onMouseDownCapture={startGame}>{playLoader ? <div className={classes.loader}></div> : <>{(gameStarted && config.closeOnStartup) ? "Закрыть" : "Играть"}</>}</button>
+                <button className={classes.playButton} onMouseDownCapture={() => {
+                    setPlayLoader(!playLoader)
+                    try {
+                        startGame(server_ip, server_number, null, null, config, saveConfig, updateConfig)
+                    } catch (error) {
+                        setPlayLoader(false)
+                        UpdateInfo(config.path)
+                    }
+                }}>{playLoader ? <div className={classes.loader}></div> : <>{buttonText()}</>}</button>
             </div>
         </>
     )

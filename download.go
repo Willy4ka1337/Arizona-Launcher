@@ -80,6 +80,22 @@ func (d *Downloader) emitProgress() {
 	d.lastEmitTime = now
 }
 
+// emitProgressImmediate отправляет прогресс немедленно, игнорируя throttle
+func (d *Downloader) emitProgressImmediate() {
+	d.emitMutex.Lock()
+	defer d.emitMutex.Unlock()
+
+	d.progressMutex.RLock()
+	progress := d.progress
+	d.progressMutex.RUnlock()
+
+	if d.ctx != nil {
+		runtime.EventsEmit(d.ctx, "download-progress", progress)
+	}
+
+	d.lastEmitTime = time.Now()
+}
+
 func (d *Downloader) SetFilesInfo(files []struct {
 	Path string
 	Size int64
@@ -144,18 +160,31 @@ func (d *Downloader) markFileComplete(fileName string, filePath string, speed fl
 
 	d.progress.FilesLoaded = append(d.progress.FilesLoaded, fileName)
 	d.progress.DownloadedFiles++
+	// speed ожидается в MB/s
 	d.progress.Speed = speed
 
+	// гарантируем, что для этого файла прогресс помечен полностью
 	if fileSize, exists := d.fileSizes[filePath]; exists {
 		d.totalSizeMap[filePath] = fileSize
 	}
 
+	// выставим 100% для текущего файла
+	d.progress.CurrentFilePercent = 100
+
 	progress := d.progress
 	d.progressMutex.Unlock()
 
+	// мгновенно эмитим финальный прогресс
 	if d.ctx != nil {
 		runtime.EventsEmit(d.ctx, "download-progress", progress)
 	}
+	d.emitProgressImmediate()
+
+	// сбрасываем скорость, чтобы не показывать "фантомные" значения после завершения
+	d.progressMutex.Lock()
+	d.progress.Speed = 0
+	d.progressMutex.Unlock()
+	d.emitProgressImmediate()
 }
 
 type WriteCounter struct {
@@ -189,7 +218,8 @@ func (wc *WriteCounter) GetAverageSpeed() float64 {
 	if elapsed == 0 {
 		return 0
 	}
-	return float64(wc.TotalBytes.Load()) / elapsed / 1024
+	// return MB/s (согласовать с UI)
+	return float64(wc.TotalBytes.Load()) / elapsed / 1024.0
 }
 
 type cancelableWriter struct {
@@ -234,7 +264,8 @@ func (cw *cancelableWriter) Write(p []byte) (int, error) {
 		elapsed := now.Sub(cw.lastUpdate).Seconds()
 		if elapsed > 0 {
 			bytesSinceLast := cw.totalRead - cw.lastBytes
-			cw.speed = float64(bytesSinceLast) / elapsed / 1024
+			// speed в MB/s (соответствует отображаемой единице)
+			cw.speed = float64(bytesSinceLast) / elapsed / 1024.0
 		}
 
 		if cw.downloader != nil {
@@ -325,12 +356,12 @@ func (d *Downloader) DownloadFile(url string, fullPath string) error {
 		return fmt.Errorf("не удалось переименовать файл: %v", err)
 	}
 
-	// average speed in KB/s
+	// average speed в MB/s (согласовать с cw.speed и GetAverageSpeed)
 	writer.mu.Lock()
 	elapsed := time.Since(writer.startTime).Seconds()
 	avgSpeed := 0.0
 	if elapsed > 0 {
-		avgSpeed = float64(writer.totalRead) / elapsed / 1024
+		avgSpeed = float64(writer.totalRead) / elapsed / 1024.0
 	}
 	writer.mu.Unlock()
 

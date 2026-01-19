@@ -167,30 +167,3 @@
     background-position: 100%;
     background: #efefef;
 }
-
-@keyframes show {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-@keyframes enable {
-    from {
-        justify-content: left;
-    }
-    to {
-        justify-content: right;
-    }
-}
-
-@keyframes disable {
-    from {
-        justify-content: right;
-    }
-    to {
-        justify-content: left;
-    }
-}
