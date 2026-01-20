@@ -143,7 +143,7 @@ export default function ServerInfo() {
                 </div>
             </div>
             <div className="fixed top-0 left-0 w-full flex justify-end">
-                <img src={hikka} alt="" draggable={false}/>
+                <img src={hikka} alt="" draggable={false} className="h-[140vh]"/>
             </div>
         </div>
         </>

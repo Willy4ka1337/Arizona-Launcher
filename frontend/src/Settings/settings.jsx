@@ -1,16 +1,15 @@
-import classes from "./style.module.css"
 import { useEffect, useState } from "react"
 import { paramsNames } from "../Config"
 import { useFolderDialog } from "../hooks/useFolderDialog"
 import Toggle from "./toggle"
 import { useConfig } from "../ConfigContext"
 
-export default function Settings({setSettingsTab}) {
+export default function Settings({ setSettingsTab }) {
     const [path, setpath] = useState("")
     const [nickname, setnickname] = useState("")
     const [paramsKeys, setParamsKeys] = useState([])
     const [paramsValues, setParamsValues] = useState([])
-    const {config, saveConfig} = useConfig()
+    const { config, saveConfig } = useConfig()
 
     useEffect(() => {
         const handleClick = (e) => {
@@ -29,6 +28,7 @@ export default function Settings({setSettingsTab}) {
             window.removeEventListener('keyup', handleClick);
         };
     }, [])
+    
     const { openFolderDialog } = useFolderDialog();
     const handleSelectFolder = async () => {
         setTimeout(() => {
@@ -44,50 +44,65 @@ export default function Settings({setSettingsTab}) {
     }
 
     return (
-        <>
-        <div className={classes.main}>
-            <div className={classes.settingsWrapper}>
-                <p className={classes.textHeader0}>Настройки</p>
-                <div className={classes.gameSettingsWrapper}>
-                    <div className={classes.settingsColumn}>
+        <div className="w-full h-full p-[50px_0_0_50px] box-border select-none">
+            <div className="w-full h-full pr-[50px] box-border pb-[50px] overflow-y-scroll">
+                <p className="font-bold text-[36px] text-white">Настройки</p>
+                <div className="mt-[50px] flex flex-wrap justify-between w-full">
+                    <div className="w-[400px] space-y-12">
                         <div>
-                            <p className={classes.textHeader}>Путь к корневой папке</p>
-                            <p className={classes.textDisabled}>Укажите путь к корневой папке, в которую будет установлена игра</p>
-                            <div className={classes.gamefolderWrapper}>
-                                <input type="text" className={`${classes.cinput} ${classes.gamefolderInput1}`} readOnly value={path} onMouseDownCapture={handleSelectFolder}/>
+                            <p className="font-bold text-[30px] text-white z-10">Путь к корневой папке</p>
+                            <p className="text-white/50 m-0 font-bold text-[12px]">Укажите путь к корневой папке, в которую будет установлена игра</p>
+                            <div className="flex mt-5">
+                                <input 
+                                    type="text" 
+                                    className="w-[380px] h-[50px] bg-[#202020] border-none outline-none px-5 text-white font-sans font-semibold text-[16px] flex items-center box-border rounded-[10px] cursor-pointer" 
+                                    readOnly 
+                                    value={path} 
+                                    onMouseDownCapture={handleSelectFolder}
+                                />
                             </div>
                         </div>
-                        <div style={{marginTop: "50px"}}>
-                            <p className={classes.textHeader}>Игровой ник</p>
-                            <p className={classes.textDisabled}>Укажите игровой ник, который будет использоваться на сервере</p>
-                            <div className={classes.nicknameWrapper}>
-                                <input type="text" className={`${classes.cinput} ${classes.nicknameInput}`} value={nickname} onChange={(e) => {
-                                    setnickname(e.target.value)
-                                    config.name = e.target.value
-                                    saveConfig(config)
-                                }}/>
-                            </div>
-                        </div>
-                        <div style={{marginTop: "50px"}}>
-                            <p className={classes.textHeader}>Параметры запуска</p>
-                            <p className={classes.textDisabled}>Выберите необходимые параметры запуска</p>
-                            <div className={classes.gamestartWrapper}>
-                                {paramsKeys.filter(value => paramsNames[value]).map((value, index) => (
-                                    <Toggle key={index} enabled={paramsValues[index]} onChange={(e) => {
-                                        config.params[value] = e.target.checked
+                        <div>
+                            <p className="font-bold text-[30px] text-white z-10">Игровой ник</p>
+                            <p className="text-white/50 m-0 font-bold text-[12px]">Укажите игровой ник, который будет использоваться на сервере</p>
+                            <div className="flex w-[300px] items-center mt-5">
+                                <input 
+                                    type="text" 
+                                    className="w-[380px] h-[50px] bg-[#202020] border-none outline-none px-5 text-white font-sans font-semibold text-[16px] flex items-center box-border rounded-[10px]" 
+                                    value={nickname} 
+                                    onChange={(e) => {
+                                        setnickname(e.target.value)
+                                        config.name = e.target.value
                                         saveConfig(config)
-                                    }}>{paramsNames[value]}</Toggle>
-                                ))}
-                                <Toggle enabled={config.closeOnStartup} onChange={(e) => {
-                                    config.closeOnStartup = e.target.checked
-                                    saveConfig(config)
-                                }}>Закрывать игру при запуске</Toggle>
+                                    }}
+                                />
                             </div>
                         </div>
+                        <div>
+                            <p className="font-bold text-[30px] text-white z-10">Параметры запуска</p>
+                            <p className="text-white/50 m-0 font-bold text-[12px]">Выберите необходимые параметры запуска</p>
+                            <div className="box-border pt-[15px]">
+                                {paramsKeys.filter(value => paramsNames[value]).map((value, index) => (
+                                    <Toggle 
+                                        key={index} 
+                                        enabled={paramsValues[index]} 
+                                        onChange={(e) => {
+                                            config.params[value] = e.target.checked
+                                            saveConfig(config)
+                                        }}
+                                    >
+                                        {paramsNames[value]}
+                                    </Toggle>
+                                ))}
+                            </div>
+                        </div>
+                        {/* <Toggle enabled={config.closeOnStartup} onChange={(e) => {
+                            config.closeOnStartup = e.target.checked
+                            saveConfig(config)
+                        }}>Закрывать игру при запуске</Toggle> */}
                     </div>
                 </div>
             </div>
         </div>
-        </>
     )
 }

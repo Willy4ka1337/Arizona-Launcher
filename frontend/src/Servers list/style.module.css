@@ -23,7 +23,6 @@
     margin-left: 5px;
     overflow-y: scroll;
     max-height: calc(100% - 90px);
-    scrollbar-width: none;
     cursor: pointer;
     outline: none;
 }
