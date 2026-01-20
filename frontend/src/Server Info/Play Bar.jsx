@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import classes from "./play.module.css"
 import { getStartParams } from "../Config"
 import { useConfig } from "../ConfigContext"
 import { useUpdate } from "../UpdateContext"
@@ -45,9 +44,9 @@ export function PlayBar({server_ip, server_number}) {
 
     return (
         <>
-            <div className={classes.mainBar}>
-                <button className={`${classes.updateAvaible} ${updateAvaible ? classes.showUpdate : ""}`} onClick={() => {setUpdateTab(!updateTab)}}>Доступно обновление!</button>
-                <button className={classes.playButton} onMouseDownCapture={() => {
+            <div className="w-full h-24 box-border px-12 fixed bottom-[5vh]">
+                <button className={`border-none bg-transparent text-white font-medium text-base p-0 m-0 mb-5 invisible hover:text-gray-300 ${updateAvaible && 'visible'}`} onClick={() => {setUpdateTab(!updateTab)}}>Доступно обновление!</button>
+                <button className="bg-white text-black min-w-44 px-9 h-15 rounded-2xl font-bold text-3xl cursor-pointer flex justify-center items-center hover:bg-gray-200 hover:relative hover:top-0.5" onMouseDownCapture={() => {
                     setPlayLoader(!playLoader)
                     try {
                         startGame(server_ip, server_number, null, null, config, saveConfig, updateConfig)
@@ -55,7 +54,7 @@ export function PlayBar({server_ip, server_number}) {
                         setPlayLoader(false)
                         UpdateInfo(config.path)
                     }
-                }}>{playLoader ? <div className={classes.loader}></div> : <>{buttonText()}</>}</button>
+                }}>{playLoader ? <div className="w-4 h-4 border-2 border-gray-300 border-t-black rounded-full animate-spin"></div> : <>{buttonText()}</>}</button>
             </div>
         </>
     )

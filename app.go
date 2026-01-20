@@ -32,6 +32,7 @@ func (a *App) startup(ctx context.Context) {
 	a.downloader = NewDownloader(ctx)
 	LoadConfig()
 	servers, serr := getServersData()
+
 	if serr == nil {
 		for _, v := range servers.Arizona {
 			dir := filepath.Join(os.Getenv("USERPROFILE"), "Documents", "Arizona Launcher")
@@ -44,9 +45,11 @@ func (a *App) startup(ctx context.Context) {
 			}
 		}
 	}
+
 	runtime.EventsOn(a.ctx, "js:getgamestate", func(optionalData ...interface{}) {
 		runtime.EventsEmit(a.ctx, "go:gamestate", IsGtaRunning())
 	})
+
 	WatchGta(
 		func() {
 			runtime.EventsEmit(a.ctx, "go:gamestate", IsGtaRunning())
@@ -78,6 +81,7 @@ func (a *App) StartGame(exePath string, params []string) error {
 		exePath = strings.Trim(exePath, `"`)
 		workingDir := filepath.Dir(exePath)
 
+		params = append(params, GetCDN())
 		cmd := exec.Command(exePath, params...)
 		cmd.Dir = workingDir
 		cmd.Stdout = os.Stdout
@@ -88,7 +92,16 @@ func (a *App) StartGame(exePath string, params []string) error {
             AddSavedStartCfg(cfg.Name, cfg.Path)
         }
 
-		return cmd.Run()
+		err := cmd.Start()
+		if err != nil {
+			return err
+		}
+
+		go func() {
+			InjectPlugins(exePath)
+		}()
+
+		return cmd.Wait()
 	} else {
 		return KillGTA()
 	}

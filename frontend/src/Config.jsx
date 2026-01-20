@@ -73,7 +73,6 @@ export async function getStartParams(server_ip, name) {
         "-mem", `${cfg.memory}`,
         "-arizona",
         "-referrer",
-        "-cdn", "1,1,0",
         "--remote-debugging-port=9222",
     ]
     for (const param of Object.keys(cfg.params)) {

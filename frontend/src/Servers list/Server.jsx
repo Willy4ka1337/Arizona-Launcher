@@ -1,7 +1,8 @@
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import classes from "./style.module.css"
 
 export default function Server({name, number, icon, selected, online, max_online, password, experienceMultiplier, selectServer}) {
+    const [color, setColor] = useState({r: 100, g: 100, b: 100})
     const sref = useRef()
     const callback = () => {
         selectServer(number)
@@ -14,14 +15,27 @@ export default function Server({name, number, icon, selected, online, max_online
                 })
             }
         }
+        window.go.main.App.GetServerIcon(name).then(path => {
+            window.go.main.App.GetImageColor(path).then(rgb => {
+                setColor(rgb)
+            })
+        })
     }, [])
     return (
         <>
         <div className={classes.serverWrapper}>
             <div ref={sref}
-                className={`box-border pr-2.5 relative ${selected && "bg-[linear-gradient(90deg,rgba(100,100,100,0.5)_0%,rgba(0,0,0,0)_90%)]"}`}
-                onClick={callback}>
-                {selected && <div className="w-1 h-full bg-[rgba(100,100,100,1)] absolute"></div>}
+                className={`box-border pr-2.5 relative ${selected && `bg-[linear-gradient(90deg,rgba(139,0,0,0.5)_0%,rgba(0,0,0,0)_90%)]`}`}
+                onClick={callback}
+                // style={selected ? {
+                //     background: `linear-gradient(90deg, rgba(${color.r}, ${color.g}, ${color.b}, 0.5) 0%, rgba(0, 0, 0, 0) 90%)`
+                // } : {}}
+                >
+                {selected && <div className="w-1 h-full absolute bg-red-900"
+                // style={{
+                //     background: `rgb(${color.r}, ${color.g}, ${color.b})`
+                // }}
+                ></div>}
                 <div className="flex items-center h-16 py-1.5 pl-3">
                     <img src={icon} alt={name} className={classes.serverIcon}/>
                     <div className={classes.serverInfo}>

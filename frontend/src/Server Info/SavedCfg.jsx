@@ -5,10 +5,10 @@ import { useConfig } from "../ConfigContext"
 export default function SavedCfg({cfg, ...props}) {
     const {config, saveConfig, updateConfig} = useConfig()
     return (
-        <div className="w-full h-24 flex justify-between items-center p-5 bg-black/30 rounded-xl border border-black/20 hover:border-white/50 hover:cursor-pointer" {...props}>
+        <div className="w-full h-24 flex justify-between items-center p-5 bg-black/30 rounded-xl border border-black/20 hover:border-white hover:cursor-pointer text-neutral-300 hover:text-white" {...props}>
             <div>
-                <p className="text-white text-xl font-bold">{cfg.name}</p>
-                <p className="text-white text-sm">{cfg.path}</p>
+                <p className="text-xl font-bold">{cfg.name}</p>
+                <p className="text-sm">{cfg.path}</p>
             </div>
             <div className="flex items-center z-10">
                 <img src={xmark} alt="" className="cursor-pointer w-8 h-8 mx-1" onClick={(e) => {

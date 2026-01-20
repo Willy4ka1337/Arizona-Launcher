@@ -5,6 +5,7 @@
     color: white;
     background: #0B0B0B;
     font-family: "Roboto";
+    user-select: none;
 }
 
 body {
