@@ -1,19 +1,45 @@
-# README
+# 🎮 Arizona Launcher
 
-## About
+**Кастомный лаунчер для игры, созданный как альтернатива официальному клиенту.**  
+Элегантный, функциональный и ориентированный на удобство пользователя.
 
-This is the official Wails React template.
+![Arizona Launcher Preview](https://img.shields.io/badge/status-active-success?style=flat-square)
+![Platform](https://img.shields.io/badge/platform-windows-blue?style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found
-here: https://wails.io/docs/reference/project-config
+---
 
-## Live Development
+## ✨ Особенности
 
-To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
-server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
-and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
-to this in your browser, and you can call your Go code from devtools.
+| Функция | Описание |
+|---------|----------|
+| 🎨 **Красивый дизайн** | Современный и удобный интерфейс |
+| 📊 **Очередь на сервере** | Отображение очереди на выбранном сервере и Vice City |
+| 🚀 **Запуск без обновлений** | Игра запускается без обязательного обновления файлов |
+| 💾 **Сохранение данных** | Запоминает последние использованные ники и сборки |
+| 🖥️ **Мультиоконный режим** | Поддержка запуска нескольких окон игры одновременно |
+| ⚡ **Плагин Arizona Patches** | Встроенная поддержка плагина для оптимизации производительности |
+| 🧹 **Чистый интерфейс** | Никаких лишних ссылок или рекламы (только авторство) |
 
-## Building
+---
 
-To build a redistributable, production mode package, use `wails build`.
+## ⚙️ Конфигурация
+#### Лаунчер автоматически создает файл конфигурации
+Вы можете вручную настроить конфиг по пути:
+```bash
+Documents\\Arizona Launcher\\config.json
+```
+
+## 📦 Установка
+
+### Скачивание релиза
+1. Перейдите в раздел [Releases](https://github.com/Willy4ka1337/Arizona-Launcher/releases/)
+2. Скачайте последнюю версию `ArizonaLauncher.zip`
+3. Распакуйте архив в удобную директорию
+4. Запустите `ArizonaLauncher.exe`
+
+### Сборка из исходников
+```bash
+git clone https://github.com/Willy4ka1337/Arizona-Launcher.git
+cd Arizona-Launcher
+wails build
