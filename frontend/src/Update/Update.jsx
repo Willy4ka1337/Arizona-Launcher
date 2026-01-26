@@ -106,7 +106,7 @@ export default function UpdateTab() {
         <>
         {
             updateTab &&
-            <div className="fixed w-full h-full bg-black/40 flex justify-center items-center select-none">
+            <div className="fixed w-full h-full bg-black/40 flex justify-center items-center select-none z-2">
                 <div className="w-[70vw] h-[70vh] bg-black/10 rounded-2xl backdrop-blur-2xl border border-white/50 box-border flex flex-wrap">
                     <div className="w-full flex justify-end pr-5 pt-5">
                         <img src={xmark} alt="" className="fixed cursor-pointer" onMouseDownCapture={() => {setUpdateTab(false)}}/>

@@ -30,16 +30,14 @@ func FileExists(filename string) bool {
 }
 
 func downloadFile(url string, filePath string) error {
-	fmt.Println("Create file", filePath)
 	output, err := os.Create(filePath)
 	if err != nil {
-		return fmt.Errorf("error creating file: %w", err)
+		return err
 	}
 
-	fmt.Println("http get", url)
 	resp, err := http.Get(url)
 	if err != nil {
-		return fmt.Errorf("error making HTTP request: %w", err)
+		return err
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -48,7 +46,7 @@ func downloadFile(url string, filePath string) error {
 
 	_, err = io.Copy(output, resp.Body)
 	if err != nil {
-		return fmt.Errorf("error copying data to file: %w", err)
+		return err
 	}
 
 	return nil
@@ -70,13 +68,13 @@ func GetFrontendPath() string {
 func GetAverageColorFromWebP(filename string) (int, int, int, error) {
 	file, err := os.Open(filename)
 	if err != nil {
-		return 0, 0, 0, fmt.Errorf("error opening file: %v", err)
+		return 0, 0, 0, err
 	}
 	defer file.Close()
 
 	img, err := webp.Decode(file)
 	if err != nil {
-		return 0, 0, 0, fmt.Errorf("error decoding WebP: %v", err)
+		return 0, 0, 0, err
 	}
 
 	bounds := img.Bounds()
@@ -87,7 +85,6 @@ func GetAverageColorFromWebP(filename string) (int, int, int, error) {
 		return 0, 0, 0, fmt.Errorf("image has no pixels")
 	}
 
-	// Sample up to 10,000 pixels for performance
 	maxSamples := 10000
 	step := int(math.Sqrt(float64(totalPixels) / float64(maxSamples)))
 	if step < 1 {

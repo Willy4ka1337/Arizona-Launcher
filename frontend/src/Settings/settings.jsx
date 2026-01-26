@@ -48,16 +48,16 @@ export default function Settings({ setSettingsTab }) {
             <div className="w-full h-full pr-[50px] box-border pb-[50px] overflow-y-scroll">
                 <p className="font-bold text-[36px] text-white">Настройки</p>
                 <div className="mt-[50px] flex flex-wrap justify-between w-full">
-                    <div className="w-[400px] space-y-12">
+                    <div className="w-xl space-y-12">
                         <div>
                             <p className="font-bold text-[30px] text-white z-10">Путь к корневой папке</p>
                             <p className="text-white/50 m-0 font-bold text-[12px]">Укажите путь к корневой папке, в которую будет установлена игра</p>
                             <div className="flex mt-5">
-                                <input 
+                                <input
                                     type="text" 
-                                    className="w-[380px] h-[50px] bg-[#202020] border-none outline-none px-5 text-white font-sans font-semibold text-[16px] flex items-center box-border rounded-[10px] cursor-pointer" 
+                                    className="h-[50px] bg-[#202020] border-none outline-none px-5 text-white font-sans font-semibold text-base flex items-center box-border rounded-xl cursor-pointer"
                                     readOnly 
-                                    value={path} 
+                                    value={path}
                                     onMouseDownCapture={handleSelectFolder}
                                 />
                             </div>
@@ -68,7 +68,7 @@ export default function Settings({ setSettingsTab }) {
                             <div className="flex w-[300px] items-center mt-5">
                                 <input 
                                     type="text" 
-                                    className="w-[380px] h-[50px] bg-[#202020] border-none outline-none px-5 text-white font-sans font-semibold text-[16px] flex items-center box-border rounded-[10px]" 
+                                    className="w-[380px] h-[50px] bg-[#202020] border-none outline-none px-5 text-white font-sans font-semibold text-base flex items-center box-border rounded-xl" 
                                     value={nickname} 
                                     onChange={(e) => {
                                         setnickname(e.target.value)

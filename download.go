@@ -80,7 +80,6 @@ func (d *Downloader) emitProgress() {
 	d.lastEmitTime = now
 }
 
-// emitProgressImmediate отправляет прогресс немедленно, игнорируя throttle
 func (d *Downloader) emitProgressImmediate() {
 	d.emitMutex.Lock()
 	defer d.emitMutex.Unlock()
@@ -160,27 +159,22 @@ func (d *Downloader) markFileComplete(fileName string, filePath string, speed fl
 
 	d.progress.FilesLoaded = append(d.progress.FilesLoaded, fileName)
 	d.progress.DownloadedFiles++
-	// speed ожидается в MB/s
 	d.progress.Speed = speed
 
-	// гарантируем, что для этого файла прогресс помечен полностью
 	if fileSize, exists := d.fileSizes[filePath]; exists {
 		d.totalSizeMap[filePath] = fileSize
 	}
 
-	// выставим 100% для текущего файла
 	d.progress.CurrentFilePercent = 100
 
 	progress := d.progress
 	d.progressMutex.Unlock()
 
-	// мгновенно эмитим финальный прогресс
 	if d.ctx != nil {
 		runtime.EventsEmit(d.ctx, "download-progress", progress)
 	}
 	d.emitProgressImmediate()
 
-	// сбрасываем скорость, чтобы не показывать "фантомные" значения после завершения
 	d.progressMutex.Lock()
 	d.progress.Speed = 0
 	d.progressMutex.Unlock()
@@ -218,7 +212,6 @@ func (wc *WriteCounter) GetAverageSpeed() float64 {
 	if elapsed == 0 {
 		return 0
 	}
-	// return MB/s (согласовать с UI)
 	return float64(wc.TotalBytes.Load()) / elapsed / 1024.0
 }
 
@@ -264,7 +257,6 @@ func (cw *cancelableWriter) Write(p []byte) (int, error) {
 		elapsed := now.Sub(cw.lastUpdate).Seconds()
 		if elapsed > 0 {
 			bytesSinceLast := cw.totalRead - cw.lastBytes
-			// speed в MB/s (соответствует отображаемой единице)
 			cw.speed = float64(bytesSinceLast) / elapsed / 1024.0
 		}
 
@@ -296,28 +288,28 @@ func (d *Downloader) DownloadFile(url string, fullPath string) error {
 
 	req, err := http.NewRequestWithContext(cancelCtx, "GET", url, nil)
 	if err != nil {
-		return fmt.Errorf("ошибка создания запроса: %v", err)
+		return err
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return fmt.Errorf("ошибка запроса: %v", err)
+		return err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("ошибка HTTP: %s", resp.Status)
+		return err
 	}
 
 	dirPath := filepath.Dir(fullPath)
 	if err := os.MkdirAll(dirPath, 0755); err != nil {
-		return fmt.Errorf("не удалось создать директорию %s: %v", dirPath, err)
+		return err
 	}
 
 	tmpFile := fullPath + ".tmp"
 	file, err := os.Create(tmpFile)
 	if err != nil {
-		return fmt.Errorf("не удалось создать файл: %v", err)
+		return err
 	}
 
 	contentLength, _ := strconv.ParseUint(resp.Header.Get("Content-Length"), 10, 64)
@@ -334,13 +326,11 @@ func (d *Downloader) DownloadFile(url string, fullPath string) error {
 
 	_, err = io.Copy(writer, resp.Body)
 
-	// close file and handle errors
 	if closeErr := file.Close(); closeErr != nil {
 		os.Remove(tmpFile)
-		return fmt.Errorf("ошибка при закрытии файла: %v", closeErr)
+		return closeErr
 	}
 
-	// handle cancellation
 	if cancelCtx.Err() == context.Canceled {
 		os.Remove(tmpFile)
 		return fmt.Errorf("загрузка отменена")
@@ -348,15 +338,14 @@ func (d *Downloader) DownloadFile(url string, fullPath string) error {
 
 	if err != nil {
 		os.Remove(tmpFile)
-		return fmt.Errorf("ошибка при записи файла: %v", err)
+		return err
 	}
 
 	if err := os.Rename(tmpFile, fullPath); err != nil {
 		os.Remove(tmpFile)
-		return fmt.Errorf("не удалось переименовать файл: %v", err)
+		return err
 	}
 
-	// average speed в MB/s (согласовать с cw.speed и GetAverageSpeed)
 	writer.mu.Lock()
 	elapsed := time.Since(writer.startTime).Seconds()
 	avgSpeed := 0.0

@@ -160,7 +160,7 @@ func (a *App) OpenFolderDialogWithDefault(defaultDir string) (string, error) {
 		})
 
 		if err != nil {
-			return "", fmt.Errorf("ошибка диалога: %v", err)
+			return "", err
 		}
 
 		return selection, nil

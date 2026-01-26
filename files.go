@@ -245,7 +245,6 @@ func ScanLocalFiles(rootDir string) map[string]LocalFile {
 		relPath = filepath.ToSlash(relPath)
 		normalizedKey := strings.ToLower(relPath)
 
-		// compute MD5 hash of the local file (best-effort)
 		hashStr, _ := ComputeFileMD5(path)
 
 		localFiles[normalizedKey] = LocalFile{
@@ -266,7 +265,6 @@ func ScanLocalFiles(rootDir string) map[string]LocalFile {
 	return localFiles
 }
 
-// ComputeFileMD5 вычисляет MD5 файла, возвращает hex-строку или ошибку
 func ComputeFileMD5(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -289,10 +287,8 @@ func ValidateGameFiles(directory string) *ComparisonResult {
 	game := LoadGameFiles(config)
 	allGameFiles := CollectAllFiles(game, "")
 
-	// Сканируем локальные файлы (ScanLocalFiles уже считает хэши best-effort)
 	localFiles := ScanLocalFiles(config.TargetDir)
 
-	// Для локальных файлов без хеша попробуем пересчитать (на случай ошибок доступа ранее)
 	for key, lf := range localFiles {
 		if lf.Hash == "" {
 			fullPath := filepath.Join(config.TargetDir, lf.Path)
@@ -303,7 +299,6 @@ func ValidateGameFiles(directory string) *ComparisonResult {
 		}
 	}
 
-	// Сравниваем и формируем результат
 	result := CompareFiles(allGameFiles, localFiles)
 
 	return result
