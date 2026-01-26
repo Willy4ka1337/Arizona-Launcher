@@ -34,9 +34,7 @@ Documents\\Arizona Launcher\\config.json
 
 ### Скачивание релиза
 1. Перейдите в раздел [Releases](https://github.com/Willy4ka1337/Arizona-Launcher/releases/)
-2. Скачайте последнюю версию `ArizonaLauncher.zip`
-3. Распакуйте архив в удобную директорию
-4. Запустите `ArizonaLauncher.exe`
+2. Скачайте и запустите последнюю версию `Arizona Launcher.exe`
 
 ### Сборка из исходников
 ```bash
