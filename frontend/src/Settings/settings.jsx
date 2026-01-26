@@ -55,7 +55,7 @@ export default function Settings({ setSettingsTab }) {
                             <div className="flex mt-5">
                                 <input
                                     type="text" 
-                                    className="h-[50px] bg-[#202020] border-none outline-none px-5 text-white font-sans font-semibold text-base flex items-center box-border rounded-xl cursor-pointer"
+                                    className="w-[450px] h-[50px] bg-[#202020] border-none outline-none px-5 text-white font-sans font-semibold text-base flex items-center box-border rounded-xl cursor-pointer"
                                     readOnly 
                                     value={path}
                                     onMouseDownCapture={handleSelectFolder}
@@ -65,10 +65,10 @@ export default function Settings({ setSettingsTab }) {
                         <div>
                             <p className="font-bold text-[30px] text-white z-10">Игровой ник</p>
                             <p className="text-white/50 m-0 font-bold text-[12px]">Укажите игровой ник, который будет использоваться на сервере</p>
-                            <div className="flex w-[300px] items-center mt-5">
+                            <div className="flex items-center mt-5">
                                 <input 
                                     type="text" 
-                                    className="w-[380px] h-[50px] bg-[#202020] border-none outline-none px-5 text-white font-sans font-semibold text-base flex items-center box-border rounded-xl" 
+                                    className="w-[450px] h-[50px] bg-[#202020] border-none outline-none px-5 text-white font-sans font-semibold text-base flex items-center box-border rounded-xl" 
                                     value={nickname} 
                                     onChange={(e) => {
                                         setnickname(e.target.value)
@@ -96,10 +96,16 @@ export default function Settings({ setSettingsTab }) {
                                 ))}
                             </div>
                         </div>
-                        {/* <Toggle enabled={config.closeOnStartup} onChange={(e) => {
-                            config.closeOnStartup = e.target.checked
-                            saveConfig(config)
-                        }}>Закрывать игру при запуске</Toggle> */}
+                        <div>
+                            <p className="font-bold text-[30px] text-white z-10">Настройки лаунчера</p>
+                            <p className="text-white/50 m-0 font-bold text-[12px]">Настройте лаунчер под себя</p>
+                            <div className="box-border pt-[15px]">
+                                <Toggle enabled={!(config.closeOnStartup)} onChange={(e) => {
+                                    config.closeOnStartup = !(e.target.checked)
+                                    saveConfig(config)
+                                }}>Открытие нескольких окон игры</Toggle>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
