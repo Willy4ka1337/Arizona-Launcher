@@ -1,0 +1,16 @@
+[
+    {
+        "id": 0,
+        "name": "Хикка",
+        "backgroundColor": "#200505",
+        "backgroundImage": "https://i.imgur.com/78izaDL.png",
+        "foregroundImage": "https://i.imgur.com/E2uPk0j.png"
+    },
+    {
+        "id": 1,
+        "name": "Фрирен",
+        "backgroundColor": "#74a5c2",
+        "backgroundImage": "https://i.imgur.com/jgOZ5UK.png",
+        "foregroundImage": "https://i.imgur.com/Fz3urfB.png"
+    }
+]
