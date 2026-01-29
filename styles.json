@@ -4,13 +4,17 @@
         "name": "Хикка",
         "backgroundColor": "#200505",
         "backgroundImage": "https://i.imgur.com/78izaDL.png",
-        "foregroundImage": "https://i.imgur.com/E2uPk0j.png"
+        "foregroundImage": "https://i.imgur.com/E2uPk0j.png",
+        "scrollbarThumb": "rgba(32, 5, 5, 0.2)",
+        "scrollbarThumbHover": "rgba(32, 5, 5, 0.3)"
     },
     {
         "id": 1,
         "name": "Фрирен",
         "backgroundColor": "#74a5c2",
         "backgroundImage": "https://i.imgur.com/jgOZ5UK.png",
-        "foregroundImage": "https://i.imgur.com/Fz3urfB.png"
+        "foregroundImage": "https://i.imgur.com/Fz3urfB.png",
+        "scrollbarThumb": "rgba(116, 165, 194, 0.2)",
+        "scrollbarThumbHover": "rgba(116, 165, 194, 0.3)"
     }
 ]
