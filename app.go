@@ -77,11 +77,12 @@ func (a *App) GetImageColor(filename string) ColorResult {
 }
 
 func (a *App) StartGame(exePath string, params []string) error {
-	if !IsGtaRunning() || !cfg.CloseOnStartup {
+	if !IsGtaRunning() || !cfg.Launcher.OnlyOneWindow {
 		exePath = strings.Trim(exePath, `"`)
 		workingDir := filepath.Dir(exePath)
 
 		params = append(params, GetCDN())
+		fmt.Println(params)
 		cmd := exec.Command(exePath, params...)
 		cmd.Dir = workingDir
 		cmd.Stdout = os.Stdout
@@ -97,11 +98,8 @@ func (a *App) StartGame(exePath string, params []string) error {
 			return err
 		}
 
-		go func() {
-			InjectPlugins(exePath)
-		}()
-
-		return cmd.Wait()
+		InjectPlugins(cmd.Process.Pid, exePath)
+		return nil
 	} else {
 		return KillGTA()
 	}
@@ -136,6 +134,7 @@ func (a *App) OpenFolderDialog() (string, error) {
 		return "", err
 	}
 
+	updateFiles(selection)
 	return selection, nil
 }
 
@@ -163,6 +162,7 @@ func (a *App) OpenFolderDialogWithDefault(defaultDir string) (string, error) {
 			return "", err
 		}
 
+		updateFiles(selection)
 		return selection, nil
 	}
 	return "", nil

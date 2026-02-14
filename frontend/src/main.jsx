@@ -12,3 +12,10 @@ root.render(
         <App/>
     </React.StrictMode>
 )
+
+export function setStyleColors({bg, server, gradient} = {}) {
+    const root = document.documentElement;
+    if (bg) root.style.setProperty('--background-color', bg);
+    if (server) root.style.setProperty('--serverColor', server);
+    if (gradient) root.style.setProperty('--serverGradientStart', gradient);
+}

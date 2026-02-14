@@ -3,7 +3,7 @@ import {PlayBar, startGame} from "./Play Bar"
 import { useServers } from "../ServersContext"
 import { useConfig } from "../ConfigContext"
 import SavedCfg from "./SavedCfg"
-import hikka from "/hikka.png"
+import { useTheme } from "../ThemeContext"
 
 export default function ServerInfo() {
     const [serverIcon, setServerIcon] = useState("")
@@ -11,11 +11,13 @@ export default function ServerInfo() {
     const {config, saveConfig, updateConfig} = useConfig()
     const image = useRef()
     const bg = useRef()
-    const server = servers.arizona[selectedServer-1]
+    const server = servers?.arizona?.[selectedServer-1 || 0]
     
     useEffect(() => {
         setBgColor(serverIcon)
     }, [serverIcon])
+
+    const {styles} = useTheme();
 
     const setSrvIcon = async (name) => {
         try {
@@ -112,7 +114,7 @@ export default function ServerInfo() {
 
     return (
         <>
-        <div className="w-full h-full box-border bg-[#200505] bg-cover bg-center select-none grid grid-rows-[auto_1fr] pt-12 content-between" ref={bg}>
+        <div className="w-full h-full box-border bg-(--background-color) bg-cover bg-center select-none grid grid-rows-[auto_1fr] pt-12 content-between" ref={bg}>
             <div className="z-2">
                 <div className="box-border ml-12 flex">
                     <img src={server?.icon} alt="logo" ref={image} className="w-16 h-16"/>
@@ -126,7 +128,7 @@ export default function ServerInfo() {
                                 <p className="font-bold text-base m-0 leading-none">{server?.online}</p>
                                 <p className="font-medium text-xs text-white/70">/{server?.maxplayers}</p>
                                 <p className="font-medium text-xs text-white/70 pl-3">Очередь: {server?.queue}</p>
-                                <p className="font-medium text-xs text-white/70 pl-3">Vice City: {servers.vc[0]?.queue}</p>
+                                <p className="font-medium text-xs text-white/70 pl-3">Vice City: {servers?.vc?.[0]?.queue}</p>
                             </div>
                         </div>
                     </div>
@@ -142,9 +144,20 @@ export default function ServerInfo() {
                     <PlayBar server_ip={server?.ip} server_number={server?.number}/>
                 </div>
             </div>
-            <div className="fixed top-0 left-0 w-full flex justify-end">
-                <img src={hikka} alt="" draggable={false} className="h-[140vh]"/>
-            </div>
+            {
+                (styles.length > 0 && config.Launcher.ShowBackgroundImage &&
+                    <div className="fixed top-0 left-0 w-full flex justify-end">
+                        <img src={styles[config.Launcher.SelectedStyle]?.backgroundImage} alt="" draggable={false} className="h-screen"/>
+                    </div>
+                )
+            }
+            {
+                (styles.length > 0 && config.Launcher.ShowForegroundImage &&
+                    <div className="fixed top-0 left-0 w-full flex justify-end">
+                        <img src={styles[config.Launcher.SelectedStyle]?.foregroundImage} alt="" draggable={false} className="h-screen"/>
+                    </div>
+                )
+            }
         </div>
         </>
     )

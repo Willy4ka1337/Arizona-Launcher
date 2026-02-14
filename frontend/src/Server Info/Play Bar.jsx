@@ -22,9 +22,11 @@ export function PlayBar({server_ip, server_number}) {
     const [gameStarted, setGameStarted] = useState(false)
     const [playLoader, setPlayLoader] = useState(false)
     const {config, saveConfig, updateConfig} = useConfig()
-    const {updateAvaible, updateTab, setUpdateTab, UpdateInfo} = useUpdate()
+    const [showtext, setShowtext] = useState(false)
+    const [text, setText] = useState("")
+    const {updateAvaible, updateTab, setUpdateTab} = useUpdate()
     const buttonText = () => {
-        if (gameStarted && config.closeOnStartup) return "Закрыть"
+        if (gameStarted && config.Launcher.onlyOneWindow) return "Закрыть"
         else return "Играть"
     }
 
@@ -45,14 +47,17 @@ export function PlayBar({server_ip, server_number}) {
     return (
         <>
             <div className="w-full h-24 box-border px-12 fixed bottom-[5vh]">
-                <button className={`border-none bg-transparent text-white font-medium text-base p-0 m-0 mb-5 invisible hover:text-gray-300 ${updateAvaible && 'visible'}`} onClick={() => {setUpdateTab(!updateTab)}}>Доступно обновление!</button>
+                <button className={`border-none bg-transparent text-white font-medium text-base p-0 m-0 mb-5 invisible hover:text-gray-300 ${(updateAvaible || showtext) && 'visible'}`} onClick={() => {
+                    if (updateAvaible) setUpdateTab(!updateTab)
+                }}>{
+                    updateAvaible ? "Доступно обновление!" : text
+                }</button>
                 <button className="bg-white text-black min-w-44 px-9 h-15 rounded-2xl font-bold text-3xl cursor-pointer flex justify-center items-center hover:bg-gray-200 hover:relative hover:top-0.5" onMouseDownCapture={() => {
                     setPlayLoader(!playLoader)
                     try {
                         startGame(server_ip, server_number, null, null, config, saveConfig, updateConfig)
                     } catch (error) {
                         setPlayLoader(false)
-                        UpdateInfo(config.path)
                     }
                 }}>{playLoader ? <div className="w-4 h-4 border-2 border-gray-300 border-t-black rounded-full animate-spin"></div> : <>{buttonText()}</>}</button>
             </div>

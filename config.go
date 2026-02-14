@@ -23,21 +23,37 @@ type Params struct {
 }
 
 type StartCfg struct {
-	Id 		 		int    `json:"id"`
-	Name           	string `json:"name"`
-	Path           	string `json:"path"`
+	Id 			int    `json:"id"`
+	Name       	string `json:"name"`
+	Path       	string `json:"path"`
+}
+
+type Launcher struct {
+	SelectedStyle			int 	`json:"SelectedStyle"`
+	AutoStyle				bool 	`json:"AutoStyle"`
+	ShowForegroundImage 	bool 	`json:"ShowForegroundImage"`
+	ShowBackgroundImage 	bool 	`json:"ShowBackgroundImage"`
+	CustomForegroundImage	string 	`json:"CustomForegroundImage"`
+	CustomBackgroundColor	string 	`json:"CustomBackgroundColor"`
+	CustomBackgroundImage	string 	`json:"CustomBackgroundImage"`
+	OnlyOneWindow 			bool   	`json:"onlyOneWindow"`
+	CDN						CDN
+}
+
+type CDN struct {
+	Resources int `json:"Resources"`
+	Sounds int `json:"Sounds"`
+	ServerApi int `json:"ServerApi"`
 }
 
 type Config struct {
-	Name           	string `json:"name"`
-	Path           	string `json:"path"`
-	Memory         	int    `json:"memory"`
-	SelectedServer 	int    `json:"selectedServer"`
-	Params         	Params `json:"params"`
-	CloseOnStartup 	bool   `json:"closeOnStartup"`
-	SavedNames		[]string `json:"savedNames"`
-	SavedPaths		[]string `json:"savedPaths"`
-	SavedStartCfgs	[]StartCfg `json:"savedStartCfgs"`
+	Name           	string 		`json:"name"`
+	Path           	string 		`json:"path"`
+	Memory         	int    		`json:"memory"`
+	SelectedServer 	int    		`json:"selectedServer"`
+	Params         	Params 		`json:"params"`
+	Launcher		Launcher
+	SavedStartCfgs	[]StartCfg 	`json:"savedStartCfgs"`
 }
 
 var cfg *Config
@@ -47,31 +63,37 @@ func (a *App) GetConfig() *Config {
 }
 
 func LoadConfig() error {
-	path :=filepath.Join(os.Getenv("USERPROFILE"), "Documents", "Arizona Launcher", "config.json")
+	path := filepath.Join(os.Getenv("USERPROFILE"), "Documents", "Arizona Launcher", "config.json")
 	data, err := os.ReadFile(path)
 	if err != nil {
 		cfg = &Config{
 			Memory: 4096,
 			SelectedServer: 1,
-			CloseOnStartup: true,
 			Params: Params{
 				AutoLogin: true,
 				Windowed: true,
 			},
-			SavedNames: []string{},
-			SavedPaths: []string{},
+			Launcher: Launcher{
+				OnlyOneWindow: true,
+				AutoStyle: true,
+				SelectedStyle: 0,
+				ShowForegroundImage: true,
+				ShowBackgroundImage: true,
+				CustomForegroundImage: "",
+				CustomBackgroundColor: "",
+				CustomBackgroundImage: "",
+				CDN: CDN{
+					Resources: 0,
+					Sounds: 0,
+					ServerApi: 0,
+				},
+			},
 			SavedStartCfgs: []StartCfg{},
 		}
 		return SaveConfig()
 	}
 
 	err = json.Unmarshal(data, &cfg)
-	if cfg.SavedNames == nil {
-		cfg.SavedNames = []string{}
-	}
-	if cfg.SavedPaths == nil {
-		cfg.SavedPaths = []string{}
-	}
 	if cfg.SavedStartCfgs == nil {
 		cfg.SavedStartCfgs = []StartCfg{}
 	}

@@ -62,7 +62,14 @@ const paramsNames = {
     "cefDirtyRects": "Оптимизация интерфейсов"
 }
 
-export {paramsNames}
+const launcherNames = {
+    "onlyOneWindow": "Запуск только одного окна игры",
+    "AutoStyle": "Автоматическое оформление",
+    "ShowForegroundImage": "Показывать изображение на переднем плане",
+    "ShowBackgroundImage": "Показывать изображение на заднем плане",
+}
+
+export {paramsNames, launcherNames}
 
 export async function getStartParams(server_ip, name) {
     const result = [

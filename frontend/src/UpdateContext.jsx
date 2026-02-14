@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import {IsUpdateAvailable, GetUpdates} from '../wailsjs/go/main/App'
-import { useConfig } from './ConfigContext';
 import { loadConfig } from './Config';
 
 export const UpdateContext = createContext()
@@ -25,7 +24,7 @@ function formatBytes(bytes, decimals = 2) {
 
 function getUpdateSize(files) {
     let result = 0
-    files.forEach((file) => {
+    files?.forEach((file) => {
         result += file.Size
     })
     return result
@@ -45,22 +44,20 @@ export function UpdateProvider({ children }) {
         GetUpdates(path)
             .then(res => {
                 setCheckFiles(false)
-                setMissingFilesLoaded(res.MissingFiles.sort((a, b) => a.Path.localeCompare(b.Path)))
-                setModifiedFilesLoaded(res.ModifiedFiles.sort((a, b) => a.Path.localeCompare(b.Path)))
+                setMissingFilesLoaded(res.MissingFiles?.sort((a, b) => a.Path.localeCompare(b.Path)))
+                setModifiedFilesLoaded(res.ModifiedFiles?.sort((a, b) => a.Path.localeCompare(b.Path)))
                 setUpdateSize(formatBytes(getUpdateSize(res.DownloadFiles)))
                 setUpdateAvaible(getUpdateSize(res.DownloadFiles) !== 0)
                 if (getUpdateSize(res.DownloadFiles) == 0) {
                     setUpdateTab(false)
                 }
+                return res
             })
     }
 
     useEffect(() => {
         loadConfig().then(config => {
             UpdateInfo(config.path)
-            setInterval(() => {
-                UpdateInfo(config.path)
-            }, 60000);
         })
     }, [])
 

@@ -1,5 +1,21 @@
 export namespace main {
 	
+	export class CDN {
+	    Resources: number;
+	    Sounds: number;
+	    ServerApi: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new CDN(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.Resources = source["Resources"];
+	        this.Sounds = source["Sounds"];
+	        this.ServerApi = source["ServerApi"];
+	    }
+	}
 	export class ColorResult {
 	    r: number;
 	    g: number;
@@ -94,6 +110,52 @@ export namespace main {
 	        this.path = source["path"];
 	    }
 	}
+	export class Launcher {
+	    SelectedStyle: number;
+	    AutoStyle: boolean;
+	    ShowForegroundImage: boolean;
+	    ShowBackgroundImage: boolean;
+	    CustomForegroundImage: string;
+	    CustomBackgroundColor: string;
+	    CustomBackgroundImage: string;
+	    onlyOneWindow: boolean;
+	    CDN: CDN;
+	
+	    static createFrom(source: any = {}) {
+	        return new Launcher(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.SelectedStyle = source["SelectedStyle"];
+	        this.AutoStyle = source["AutoStyle"];
+	        this.ShowForegroundImage = source["ShowForegroundImage"];
+	        this.ShowBackgroundImage = source["ShowBackgroundImage"];
+	        this.CustomForegroundImage = source["CustomForegroundImage"];
+	        this.CustomBackgroundColor = source["CustomBackgroundColor"];
+	        this.CustomBackgroundImage = source["CustomBackgroundImage"];
+	        this.onlyOneWindow = source["onlyOneWindow"];
+	        this.CDN = this.convertValues(source["CDN"], CDN);
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class Params {
 	    wideScreen: boolean;
 	    autoLogin: boolean;
@@ -136,9 +198,7 @@ export namespace main {
 	    memory: number;
 	    selectedServer: number;
 	    params: Params;
-	    closeOnStartup: boolean;
-	    savedNames: string[];
-	    savedPaths: string[];
+	    Launcher: Launcher;
 	    savedStartCfgs: StartCfg[];
 	
 	    static createFrom(source: any = {}) {
@@ -152,9 +212,7 @@ export namespace main {
 	        this.memory = source["memory"];
 	        this.selectedServer = source["selectedServer"];
 	        this.params = this.convertValues(source["params"], Params);
-	        this.closeOnStartup = source["closeOnStartup"];
-	        this.savedNames = source["savedNames"];
-	        this.savedPaths = source["savedPaths"];
+	        this.Launcher = this.convertValues(source["Launcher"], Launcher);
 	        this.savedStartCfgs = this.convertValues(source["savedStartCfgs"], StartCfg);
 	    }
 	
@@ -176,40 +234,7 @@ export namespace main {
 		    return a;
 		}
 	}
-	export class DownloadProgress {
-	    fileDownloading: string;
-	    filesLoaded: string[];
-	    percentDownloaded: number;
-	    speed: number;
-	    totalFiles: number;
-	    downloadedFiles: number;
-	    totalSize: number;
-	    downloadedSize: number;
-	    currentFile: string;
-	    currentFilePercent: number;
-	    currentFileSize: number;
-	    currentFileLoaded: number;
 	
-	    static createFrom(source: any = {}) {
-	        return new DownloadProgress(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.fileDownloading = source["fileDownloading"];
-	        this.filesLoaded = source["filesLoaded"];
-	        this.percentDownloaded = source["percentDownloaded"];
-	        this.speed = source["speed"];
-	        this.totalFiles = source["totalFiles"];
-	        this.downloadedFiles = source["downloadedFiles"];
-	        this.totalSize = source["totalSize"];
-	        this.downloadedSize = source["downloadedSize"];
-	        this.currentFile = source["currentFile"];
-	        this.currentFilePercent = source["currentFilePercent"];
-	        this.currentFileSize = source["currentFileSize"];
-	        this.currentFileLoaded = source["currentFileLoaded"];
-	    }
-	}
 	
 	
 

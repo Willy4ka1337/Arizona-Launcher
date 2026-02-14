@@ -53,23 +53,21 @@ type FilesConfig struct {
 	GameURL   string
 }
 
+type HashCacheEntry struct {
+	Size     int64  `json:"size"`
+	Modified int64  `json:"modified"`
+	Hash     string `json:"hash"`
+}
+
+type HashCache map[string]HashCacheEntry
+
 var files *ComparisonResult
 
 func updateFiles(directory string) {
-	// config := FilesConfig{
-	// 	TargetDir: directory,
-	// 	GameURL:   "https://pc.az-ins.com/release/game.json",
-	// }
-	// game := LoadGameFiles(config)
-	// allGameFiles := CollectAllFiles(game, "")
-	// localFiles := ScanLocalFiles(config.TargetDir)
-	// files = CompareFiles(allGameFiles, localFiles)
 	files = ValidateGameFiles(directory)
 }
 
 func (a *App) DownloadFiles(directory string) {
-	// updateFiles(directory)
-
 	var fileInfos []struct {
 		Path string
 		Size int64
@@ -86,7 +84,6 @@ func (a *App) DownloadFiles(directory string) {
 	}
 
 	a.downloader.SetFilesInfo(fileInfos)
-
 	hasRealErrors := false
 	stop := false
 
@@ -107,6 +104,9 @@ func (a *App) DownloadFiles(directory string) {
 				runtime.EventsEmit(a.ctx, "download-error", f.Path, err.Error())
 				continue
 			}
+		}
+		if err == nil {
+			UpdateHashCacheForFile(directory, f)
 		}
 	}
 
@@ -130,48 +130,14 @@ func (a *App) StopDownloads() bool {
 	return false
 }
 
-func (a *App) GetDownloadProgress() DownloadProgress {
-	if a.downloader != nil {
-		return a.downloader.GetProgress()
-	}
-	return DownloadProgress{}
-}
-
 func (a *App) GetUpdates(directory string) *ComparisonResult {
 	updateFiles(directory)
 	return files
 }
 
-func (a *App) GetMissingFiles(directory string) []FileInfo {
-	updateFiles(directory)
-	return files.MissingFiles
-}
-
-func (a *App) GetModifiedFiles(directory string) []FileInfo {
-	updateFiles(directory)
-	return files.ModifiedFiles
-}
-
 func (a *App) IsUpdateAvailable(directory string) bool {
 	updateFiles(directory)
 	return (len(files.DownloadFiles) > 0)
-}
-
-func (a *App) CheckFilesExist(directory string) bool {
-	config := FilesConfig{
-		TargetDir: directory,
-		GameURL:   "https://pc.az-ins.com/release/game.json",
-	}
-	game := LoadGameFiles(config)
-	allGameFiles := CollectAllFiles(game, "")
-
-	for _, file := range allGameFiles {
-		fullPath := filepath.Join(directory, file.Path)
-		if !FileExists(fullPath) {
-			return false
-		}
-	}
-	return true
 }
 
 func CollectAllFiles(entries []FileEntry, basePath string) []FileInfo {
@@ -225,46 +191,6 @@ func LoadGameFiles(config FilesConfig) []FileEntry {
 	return GameData.Data
 }
 
-func ScanLocalFiles(rootDir string) map[string]LocalFile {
-	localFiles := make(map[string]LocalFile)
-
-	err := filepath.Walk(rootDir, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return nil
-		}
-
-		if info.IsDir() {
-			return nil
-		}
-
-		relPath, err := filepath.Rel(rootDir, path)
-		if err != nil {
-			return err
-		}
-
-		relPath = filepath.ToSlash(relPath)
-		normalizedKey := strings.ToLower(relPath)
-
-		hashStr, _ := ComputeFileMD5(path)
-
-		localFiles[normalizedKey] = LocalFile{
-			Path:     relPath,
-			Size:     info.Size(),
-			Modified: info.ModTime().Unix(),
-			Exists:   true,
-			Hash:     hashStr,
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return nil
-	}
-
-	return localFiles
-}
-
 func ComputeFileMD5(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -279,80 +205,149 @@ func ComputeFileMD5(path string) (string, error) {
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
+func LoadHashCache(gameDir string) HashCache {
+	path := filepath.Join(gameDir, ".hashcache.json")
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return make(HashCache)
+	}
+
+	var cache HashCache
+	if err := json.Unmarshal(data, &cache); err != nil {
+		return make(HashCache)
+	}
+
+	return cache
+}
+
+func SaveHashCache(gameDir string, cache HashCache) {
+	path := filepath.Join(gameDir, ".hashcache.json")
+
+	data, _ := json.MarshalIndent(cache, "", "  ")
+	_ = os.WriteFile(path, data, 0644)
+}
+
 func ValidateGameFiles(directory string) *ComparisonResult {
 	config := FilesConfig{
 		TargetDir: directory,
 		GameURL:   "https://pc.az-ins.com/release/game.json",
 	}
+
 	game := LoadGameFiles(config)
-	allGameFiles := CollectAllFiles(game, "")
+	jsonFiles := CollectAllFiles(game, "")
+	hashCache := LoadHashCache(directory)
 
-	localFiles := ScanLocalFiles(config.TargetDir)
-
-	for key, lf := range localFiles {
-		if lf.Hash == "" {
-			fullPath := filepath.Join(config.TargetDir, lf.Path)
-			if hash, err := ComputeFileMD5(fullPath); err == nil {
-				lf.Hash = hash
-				localFiles[key] = lf
-			}
-		}
-	}
-
-	result := CompareFiles(allGameFiles, localFiles)
-
-	return result
-}
-
-func CompareFiles(jsonFiles []FileInfo, localFiles map[string]LocalFile) *ComparisonResult {
 	result := &ComparisonResult{
-		MissingFiles:    make([]FileInfo, 0),
-		ModifiedFiles:   make([]FileInfo, 0),
-		CorrectFiles:    make([]FileInfo, 0),
-		DownloadFiles:   make([]FileInfo, 0),
-		TotalJSONFiles:  len(jsonFiles),
-		TotalLocalFiles: len(localFiles),
+		TotalJSONFiles: len(jsonFiles),
 	}
 
-	matchedLocalFiles := make(map[string]bool)
+	for _, jf := range jsonFiles {
+		localPath := filepath.Join(directory, jf.Path)
+		cacheKey := strings.ToLower(jf.Path)
 
-	jsonFilesMap := make(map[string]FileInfo)
-	for _, jsonFile := range jsonFiles {
-		key := strings.ToLower(jsonFile.Path)
-		jsonFilesMap[key] = jsonFile
-	}
+		info, err := os.Stat(localPath)
+		if err != nil {
+			delete(hashCache, cacheKey)
 
-	for localKey, localFile := range localFiles {
-		if jsonFile, exists := jsonFilesMap[localKey]; exists {
-			matchedLocalFiles[localKey] = true
+			result.MissingFiles = append(result.MissingFiles, jf)
+			result.DownloadFiles = append(result.DownloadFiles, jf)
+			continue
+		}
 
-			if IsFileModified(jsonFile, localFile) {
-				result.ModifiedFiles = append(result.ModifiedFiles, jsonFile)
-				result.DownloadFiles = append(result.DownloadFiles, jsonFile)
-			} else {
-				result.CorrectFiles = append(result.CorrectFiles, jsonFile)
+		cacheEntry, exists := hashCache[cacheKey]
+
+		if !exists {
+			hash, err := ComputeFileMD5(localPath)
+			if err != nil || hash != jf.Hash {
+				result.ModifiedFiles = append(result.ModifiedFiles, jf)
+				result.DownloadFiles = append(result.DownloadFiles, jf)
+				continue
 			}
-			delete(jsonFilesMap, localKey)
+
+			hashCache[cacheKey] = HashCacheEntry{
+				Size:     info.Size(),
+				Modified: info.ModTime().Unix(),
+				Hash:     hash,
+			}
+
+			result.CorrectFiles = append(result.CorrectFiles, jf)
+			continue
+		}
+
+		if cacheEntry.Hash != jf.Hash {
+			result.ModifiedFiles = append(result.ModifiedFiles, jf)
+			result.DownloadFiles = append(result.DownloadFiles, jf)
+		} else {
+			result.CorrectFiles = append(result.CorrectFiles, jf)
 		}
 	}
 
-	for _, jsonFile := range jsonFilesMap {
-		result.MissingFiles = append(result.MissingFiles, jsonFile)
-		result.DownloadFiles = append(result.DownloadFiles, jsonFile)
-	}
-
+	CleanupHashCache(directory, hashCache)
+	SaveHashCache(directory, hashCache)
 	return result
 }
 
-func IsFileModified(jsonFile FileInfo, localFile LocalFile) bool {
+func IsFileModified(jsonFile FileInfo, localFile LocalFile, baseDir string, cache map[string]string) bool {
 	if jsonFile.Size != localFile.Size {
 		return true
 	}
-	if jsonFile.Hash != "" && localFile.Hash != "" {
-		return jsonFile.Hash != localFile.Hash
-	}
+
 	if jsonFile.Modified != localFile.Modified {
 		return true
 	}
+
+	if jsonFile.Hash != "" {
+		key := strings.ToLower(localFile.Path)
+		// If cached hash equals the expected hash, assume file is correct
+		if cachedHash, ok := cache[key]; ok && cachedHash == jsonFile.Hash {
+			return false
+		}
+
+		fullPath := filepath.Join(baseDir, localFile.Path)
+		hash, err := ComputeFileMD5(fullPath)
+		if err != nil {
+			return true
+		}
+
+		// Update cache with the computed hash for future checks
+		cache[key] = hash
+
+		return hash != jsonFile.Hash
+	}
+
 	return false
+}
+
+func UpdateHashCacheForFile(gameDir string, file FileInfo) {
+	cache := LoadHashCache(gameDir)
+
+	fullPath := filepath.Join(gameDir, file.Path)
+	info, err := os.Stat(fullPath)
+	if err != nil {
+		return
+	}
+
+	hash, err := ComputeFileMD5(fullPath)
+	if err != nil {
+		return
+	}
+
+	cache[strings.ToLower(file.Path)] = HashCacheEntry{
+		Size:     info.Size(),
+		Modified: info.ModTime().Unix(),
+		Hash:     hash,
+	}
+
+	CleanupHashCache(gameDir, cache)
+	SaveHashCache(gameDir, cache)
+}
+
+func CleanupHashCache(gameDir string, cache HashCache) {
+	for path := range cache {
+		fullPath := filepath.Join(gameDir, path)
+		if _, err := os.Stat(fullPath); err != nil {
+			delete(cache, path)
+		}
+	}
 }

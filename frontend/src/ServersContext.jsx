@@ -19,13 +19,18 @@ export function ServersProvider({ setLoaded, children }) {
     }
 
     useEffect(() => {
+        let intervalId;
         loadConfig().then(config => {
             setSelectedServer(config.selectedServer ?? 1)
         })
         updateArizonaInfo()
-        setInterval(() => {
+        intervalId = setInterval(() => {
             updateArizonaInfo()
         }, 5000);
+
+        return () => {
+            if (intervalId) clearInterval(intervalId)
+        }
     }, [])
 
     return (

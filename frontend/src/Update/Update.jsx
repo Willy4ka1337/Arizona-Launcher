@@ -134,7 +134,7 @@ export default function UpdateTab() {
                         <div className="my-5">
                             <p className="text-xl font-bold">Установленно:</p>
                             <div className="mt-2 h-[27vh] overflow-y-scroll [&::-webkit-scrollbar]:hidden">
-                                {downloadData.filesLoaded.map((file, i) => (
+                                {downloadData?.filesLoaded?.map((file, i) => (
                                     <p className="text-base font-medium text-white/60" key={i}>{file}</p>
                                 ))}
                             </div>
@@ -144,7 +144,7 @@ export default function UpdateTab() {
                             <div className="mt-5 overflow-x-hidden">
                                 <p className="text-xl font-bold">Новые файлы:</p>
                                 <div className="mt-2 h-72 overflow-y-scroll [&::-webkit-scrollbar]:hidden">
-                                    {missingFilesLoaded.map((file, i) => (
+                                    {missingFilesLoaded?.map((file, i) => (
                                         <p className="text-base font-medium text-white/60" key={i}>{file.Path}</p>
                                     ))}
                                 </div>
@@ -152,7 +152,7 @@ export default function UpdateTab() {
                             <div className="mt-5 overflow-x-hidden">
                                 <p className="text-xl font-bold">Измененные файлы:</p>
                                 <div className="mt-2 h-[37vh] overflow-y-scroll [&::-webkit-scrollbar]:hidden">
-                                    {modifiedFilesLoaded.map((file, i) => (
+                                    {modifiedFilesLoaded?.map((file, i) => (
                                         <p className="text-base font-medium text-white/60" key={i}>{file.Path}</p>
                                     ))}
                                 </div>
