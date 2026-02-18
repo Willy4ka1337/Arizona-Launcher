@@ -22,8 +22,8 @@ export function GetSavedStartCfgs() {
   return window['go']['main']['App']['GetSavedStartCfgs']();
 }
 
-export function GetServerIcon(arg1) {
-  return window['go']['main']['App']['GetServerIcon'](arg1);
+export function GetStyleFile(arg1) {
+  return window['go']['main']['App']['GetStyleFile'](arg1);
 }
 
 export function GetUpdates(arg1) {

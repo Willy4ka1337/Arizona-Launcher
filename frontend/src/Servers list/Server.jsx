@@ -1,36 +1,19 @@
 import { useEffect, useRef } from "react"
 
-const colorCache = new Map()
-
 export default function Server({name, number, icon, selected, online, max_online, password, experienceMultiplier, selectServer}) {
     const sref = useRef()
-    const callback = () => selectServer(number)
 
     useEffect(() => {
-        let mounted = true
         if (selected && sref.current) {
             sref.current.parentElement.scrollIntoView({ block: 'nearest' })
         }
-
-        window.go.main.App.GetServerIcon(name).then(path => {
-            if (!mounted) return
-            if (colorCache.has(path)) {
-                return
-            }
-            window.go.main.App.GetImageColor(path).then(rgb => {
-                if (!mounted) return
-                colorCache.set(path, rgb)
-            }).catch(() => {})
-        }).catch(() => {})
-
-        return () => { mounted = false }
     }, [])
 
     return (
         <div className="pb-2.5">
             <div
                 ref={sref}
-                onClick={callback}
+                onClick={() => selectServer(number)}
                 className={`box-border pr-2.5 relative rounded-lg ${selected ? 'bg-[linear-gradient(90deg,var(--serverGradientStart)_0%,rgba(0,0,0,0)_90%)]' : 'hover:bg-[linear-gradient(90deg,rgba(48,48,48,0.5)_0%,rgba(0,0,0,0)_90%)]'}`}
             >
                 {selected && (

@@ -161,36 +161,41 @@ func WatchGta(event func()) {
 }
 
 func GetCDN() string {
-	result := []int{
-		cfg.Launcher.CDN.Resources,
-		cfg.Launcher.CDN.Sounds,
-		cfg.Launcher.CDN.ServerApi,
-	}
-	// srvs := [][]string{
-	// 	{"https://cdn.azresources.cloud", "https://reserve-cdn.azresources.cloud"},
-	// 	{"https://cdn.azsounds.cloud", "https://reserve-cdn.azsounds.cloud"},
-	// 	{"https://server-api.arizona.games", "https://reserve-server-api.arizona.games"},
-	// }
-	// for _, v := range srvs {
-	// 	for k, srv := range v {
-	// 		resp, err := http.Get(srv + "/ping.json")
-	// 		if err != nil {
-	// 			fmt.Println(err)
-	// 		}
-	// 		defer resp.Body.Close()
+	result := []int{}
 
-	// 		if resp.StatusCode == 200 {
-	// 			result = append(result, k)
-	// 			break
-	// 		}
-	// 	}
-	// }
+	if cfg.Launcher.AutoCDN {
+		srvs := [][]string{
+			{"https://cdn.azresources.cloud", "https://reserve-cdn.azresources.cloud"},
+			{"https://cdn.azsounds.cloud", "https://reserve-cdn.azsounds.cloud"},
+			{"https://server-api.arizona.games", "https://reserve-server-api.arizona.games"},
+		}
+		for _, v := range srvs {
+			for k, srv := range v {
+				resp, err := http.Get(srv + "/ping.json")
+				if err != nil {
+					fmt.Println(err)
+				}
+				defer resp.Body.Close()
+				
+				if resp.StatusCode == 200 {
+					result = append(result, k)
+					break
+				}
+			}
+		}
+	} else {
+		result = []int{
+			cfg.Launcher.CDN.Resources,
+			cfg.Launcher.CDN.Sounds,
+			cfg.Launcher.CDN.ServerApi,
+		}
+	}
+
 	strResult := make([]string, len(result))
 	for i, idx := range result {
 		strResult[i] = strconv.Itoa(idx)
 	}
-	// strResult = append(strResult, "0")
-	
+
 	joined := strings.Join(strResult, ",")
 	return "-cdn " + joined
 }

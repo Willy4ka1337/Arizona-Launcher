@@ -2,22 +2,18 @@
     {
         "id": 0,
         "name": "Хикка",
-        "backgroundImage": "https://i.imgur.com/78izaDL.png",
-        "foregroundImage": "https://i.imgur.com/E2uPk0j.png",
+        "backgroundImage": "hikkabg.png",
+        "foregroundImage": "hikkafg.png",
         "backgroundColor": "#200505",
-        "scrollbarThumb": "rgba(32, 5, 5, 0.2)",
-        "scrollbarThumbHover": "rgba(32, 5, 5, 0.3)",
         "serverColor": "#82181a",
         "serverGradientStart": "rgba(139, 0, 0, 0.5)"
     },
     {
         "id": 1,
         "name": "Фрирен",
-        "backgroundImage": "https://i.imgur.com/jgOZ5UK.png",
-        "foregroundImage": "https://i.imgur.com/Fz3urfB.png",
+        "backgroundImage": "frirenbg.png",
+        "foregroundImage": "frirenfg.png",
         "backgroundColor": "#74a5c2",
-        "scrollbarThumb": "rgba(116, 165, 194, 0.2)",
-        "scrollbarThumbHover": "rgba(116, 165, 194, 0.3)",
         "serverColor": "#69c7ff",
         "serverGradientStart": "rgba(105, 199, 255, 0.5)"
     }

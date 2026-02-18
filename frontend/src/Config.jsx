@@ -67,6 +67,7 @@ const launcherNames = {
     "AutoStyle": "Автоматическое оформление",
     "ShowForegroundImage": "Показывать изображение на переднем плане",
     "ShowBackgroundImage": "Показывать изображение на заднем плане",
+    "AutoCDN": "Автоматическое определение CDN серверов",
 }
 
 export {paramsNames, launcherNames}

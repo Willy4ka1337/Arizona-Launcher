@@ -37,6 +37,7 @@ type Launcher struct {
 	CustomBackgroundColor	string 	`json:"CustomBackgroundColor"`
 	CustomBackgroundImage	string 	`json:"CustomBackgroundImage"`
 	OnlyOneWindow 			bool   	`json:"onlyOneWindow"`
+	AutoCDN					bool	`json:"AutoCDN"`
 	CDN						CDN
 }
 
@@ -82,6 +83,7 @@ func LoadConfig() error {
 				CustomForegroundImage: "",
 				CustomBackgroundColor: "",
 				CustomBackgroundImage: "",
+				AutoCDN: true,
 				CDN: CDN{
 					Resources: 0,
 					Sounds: 0,

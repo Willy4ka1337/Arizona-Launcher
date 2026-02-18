@@ -12,7 +12,7 @@ export function GetImageColor(arg1:string):Promise<main.ColorResult>;
 
 export function GetSavedStartCfgs():Promise<Array<main.StartCfg>>;
 
-export function GetServerIcon(arg1:string):Promise<string>;
+export function GetStyleFile(arg1:string):Promise<Array<number>>;
 
 export function GetUpdates(arg1:string):Promise<main.ComparisonResult>;
 

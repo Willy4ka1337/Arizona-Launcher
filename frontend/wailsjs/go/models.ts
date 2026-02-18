@@ -119,6 +119,7 @@ export namespace main {
 	    CustomBackgroundColor: string;
 	    CustomBackgroundImage: string;
 	    onlyOneWindow: boolean;
+	    AutoCDN: boolean;
 	    CDN: CDN;
 	
 	    static createFrom(source: any = {}) {
@@ -135,6 +136,7 @@ export namespace main {
 	        this.CustomBackgroundColor = source["CustomBackgroundColor"];
 	        this.CustomBackgroundImage = source["CustomBackgroundImage"];
 	        this.onlyOneWindow = source["onlyOneWindow"];
+	        this.AutoCDN = source["AutoCDN"];
 	        this.CDN = this.convertValues(source["CDN"], CDN);
 	    }
 	

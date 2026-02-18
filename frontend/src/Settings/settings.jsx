@@ -19,6 +19,7 @@ export default function Settings({ setSettingsTab }) {
     const [selectedCDN1, setSelectedCDN1] = useState(config.Launcher.CDN.Resources)
     const [selectedCDN2, setSelectedCDN2] = useState(config.Launcher.CDN.Sounds)
     const [selectedCDN3, setSelectedCDN3] = useState(config.Launcher.CDN.ServerApi)
+    const [autoCDN, setAutoCDN] = useState(config.Launcher.AutoCDN)
     const [checkUpdateText, setCheckUpdateText] = useState("Проверить файлы игры")
     const [playLoader, setPlayLoader] = useState(false)
     const { UpdateInfo } = useUpdate()
@@ -119,46 +120,52 @@ export default function Settings({ setSettingsTab }) {
                                         onChange={(e) => {
                                             config.Launcher[value] = e.target.checked
                                             saveConfig(config)
+                                            if (value == "AutoCDN") {
+                                                setAutoCDN(e.target.checked)
+                                            }
                                         }}
                                     >
                                         {launcherNames[value]}
                                     </Toggle>
                                 ))}
-                                <div className="mt-10">
-                                    <p className="font-bold text-xl text-white z-10">Выбор CDN серверов</p>
-                                    <div className="pt-3 w-3xs space-y-2">
-                                        <CDNSettings
-                                            title={"Ресурсы"}
-                                            value={selectedCDN1}
-                                            name={"Resources"}
-                                            onChange={(e) => {
-                                                setSelectedCDN1(e.target.value)
-                                                config.Launcher.CDN.Resources = parseInt(e.target.value)
-                                                saveConfig(config)
-                                            }}
-                                        />
-                                        <CDNSettings
-                                            title={"Звуки"}
-                                            value={selectedCDN2}
-                                            name={"Sounds"}
-                                            onChange={(e) => {
-                                                setSelectedCDN2(e.target.value)
-                                                config.Launcher.CDN.Sounds = parseInt(e.target.value)
-                                                saveConfig(config)
-                                            }}
-                                        />
-                                        <CDNSettings
-                                            title={"Server API"}
-                                            value={selectedCDN3}
-                                            name={"ServerApi"}
-                                            onChange={(e) => {
-                                                setSelectedCDN3(e.target.value)
-                                                config.Launcher.CDN.ServerApi = parseInt(e.target.value)
-                                                saveConfig(config)
-                                            }}
-                                        />
+                                {
+                                    !autoCDN &&
+                                    <div className="mt-10">
+                                        <p className="font-bold text-xl text-white z-10">Выбор CDN серверов</p>
+                                        <div className="pt-3 w-3xs space-y-2">
+                                            <CDNSettings
+                                                title={"Ресурсы"}
+                                                value={selectedCDN1}
+                                                name={"Resources"}
+                                                onChange={(e) => {
+                                                    setSelectedCDN1(e.target.value)
+                                                    config.Launcher.CDN.Resources = parseInt(e.target.value)
+                                                    saveConfig(config)
+                                                }}
+                                            />
+                                            <CDNSettings
+                                                title={"Звуки"}
+                                                value={selectedCDN2}
+                                                name={"Sounds"}
+                                                onChange={(e) => {
+                                                    setSelectedCDN2(e.target.value)
+                                                    config.Launcher.CDN.Sounds = parseInt(e.target.value)
+                                                    saveConfig(config)
+                                                }}
+                                            />
+                                            <CDNSettings
+                                                title={"Server API"}
+                                                value={selectedCDN3}
+                                                name={"ServerApi"}
+                                                onChange={(e) => {
+                                                    setSelectedCDN3(e.target.value)
+                                                    config.Launcher.CDN.ServerApi = parseInt(e.target.value)
+                                                    saveConfig(config)
+                                                }}
+                                            />
+                                        </div>
                                     </div>
-                                </div>
+                                }
                                 <div className="mt-10">
                                     <p className="font-bold text-xl text-white z-10">Стиль оформления лаунчера</p>
                                     <div className="w-40 pt-3">

@@ -17,7 +17,7 @@ export function ThemeProvider({ children }) {
                 SelectedStyle: config.Launcher.SelectedStyle,
                 AutoStyle: config.Launcher.AutoStyle,
             })
-            fetch("https://raw.githubusercontent.com/Willy4ka1337/Arizona-Launcher/refs/heads/main/styles.json").then((res) => res.json())
+            fetch("https://willy4ka.ru/resources/arzlauncher/styles.json").then((res) => res.json())
                 .then((res) => {
                     setStyles(res)
 

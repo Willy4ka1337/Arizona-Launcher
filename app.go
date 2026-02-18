@@ -32,6 +32,7 @@ func (a *App) startup(ctx context.Context) {
 	a.downloader = NewDownloader(ctx)
 	LoadConfig()
 	servers, serr := getServersData()
+	styles, sterr := GetStylesData()
 
 	if serr == nil {
 		for _, v := range servers.Arizona {
@@ -39,9 +40,27 @@ func (a *App) startup(ctx context.Context) {
 			if !DirExists(dir) {
 				os.MkdirAll(dir, 0755)
 			}
-			path := filepath.Join(dir, v.Name+".webp")
-			if !FileExists(path) {
-				downloadFile(v.Icon, path)
+			fullpath := filepath.Join(dir, v.Name+".webp")
+			if !FileExists(fullpath) {
+				downloadFile(v.Icon, fullpath)
+			}
+		}
+	}
+
+	if sterr == nil {
+		for _, v := range styles {
+			dir := filepath.Join(os.Getenv("USERPROFILE"), "Documents", "Arizona Launcher")
+			if !DirExists(dir) {
+				os.MkdirAll(dir, 0755)
+			}
+			fullpath := filepath.Join(dir, v.BackgroundImage)
+			if !FileExists(fullpath) {
+				downloadFile("https://willy4ka.ru/resources/arzlauncher/" + v.BackgroundImage, fullpath)
+			}
+
+			fullpath = filepath.Join(dir, v.ForegroundImage)
+			if !FileExists(fullpath) {
+				downloadFile("https://willy4ka.ru/resources/arzlauncher/" + v.ForegroundImage, fullpath)
 			}
 		}
 	}
@@ -57,8 +76,8 @@ func (a *App) startup(ctx context.Context) {
 	)
 }
 
-func (a *App) GetServerIcon(name string) string {
-	return filepath.Join(os.Getenv("USERPROFILE"), "Documents", "Arizona Launcher", name+".webp")
+func (a *App) GetStyleFile(name string) ([]byte, error) {
+	return os.ReadFile(filepath.Join(os.Getenv("USERPROFILE"), "Documents", "Arizona Launcher", name))
 }
 
 func (a *App) GetImageColor(filename string) ColorResult {
@@ -81,8 +100,9 @@ func (a *App) StartGame(exePath string, params []string) error {
 		exePath = strings.Trim(exePath, `"`)
 		workingDir := filepath.Dir(exePath)
 
-		params = append(params, GetCDN())
-		fmt.Println(params)
+		cdn := GetCDN()
+		params = append(params, cdn)
+
 		cmd := exec.Command(exePath, params...)
 		cmd.Dir = workingDir
 		cmd.Stdout = os.Stdout
