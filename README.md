@@ -40,4 +40,4 @@ Documents\\Arizona Launcher\\config.json
 ```bash
 git clone https://github.com/Willy4ka1337/Arizona-Launcher.git
 cd Arizona-Launcher
-wails build
+wails build -platform windows/386
